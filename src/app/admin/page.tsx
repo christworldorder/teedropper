@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import { useState, useRef } from "react";
 import { collection, addDoc } from "firebase/firestore";
@@ -130,8 +131,7 @@ export default function AdminPage() {
               onClick={() => fileRef.current?.click()}
             >
               {imagePreview ? (
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imagePreview} alt="preview" className="max-h-48 mx-auto rounded-lg object-contain" />
+                <img src={imagePreview} alt="preview" className="max-h-48 mx-auto rounded-lg object-contain" />
               ) : (
                 <div className="text-gray-400">
                   <div className="text-4xl mb-2">👕</div>
