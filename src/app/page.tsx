@@ -1,9 +1,22 @@
+"use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { collection, getDocs, orderBy, query, limit } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/lib/products";
+import { Product } from "@/lib/products";
 
 export default function Home() {
-  const featured = products.slice(0, 4);
+  const [featured, setFeatured] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      const q = query(collection(db, "teedropper_products"), orderBy("createdAt", "desc"), limit(4));
+      const snap = await getDocs(q);
+      setFeatured(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Product)));
+    }
+    load();
+  }, []);
 
   return (
     <div>
@@ -35,19 +48,21 @@ export default function Home() {
       </div>
 
       {/* Featured Products */}
-      <section className="max-w-6xl mx-auto px-4 py-16">
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-3xl font-black uppercase tracking-tight">Latest Drops</h2>
-          <Link href="/shop" className="text-sm font-bold underline underline-offset-4 hover:text-yellow-500">
-            See all
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featured.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </section>
+      {featured.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 py-16">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-3xl font-black uppercase tracking-tight">Latest Drops</h2>
+            <Link href="/shop" className="text-sm font-bold underline underline-offset-4 hover:text-yellow-500">
+              See all
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featured.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* CTA Banner */}
       <section className="bg-black text-white py-16 px-4 text-center">
