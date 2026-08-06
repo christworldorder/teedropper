@@ -130,7 +130,8 @@ export default function AdminPage() {
               onClick={() => fileRef.current?.click()}
             >
               {imagePreview ? (
-                <img src={imagePreview} alt="preview" className="max-h-48 mx-auto rounded-lg object-contain" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imagePreview} alt="preview" className="max-h-48 mx-auto rounded-lg object-contain" />
               ) : (
                 <div className="text-gray-400">
                   <div className="text-4xl mb-2">👕</div>
