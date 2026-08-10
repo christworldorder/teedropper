@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -28,6 +30,14 @@ export async function POST(req: NextRequest) {
     shipping_details?: { name?: string; address?: { line1?: string; line2?: string; city?: string; state?: string; country?: string; postal_code?: string } };
   };
 
+  // Idempotency: skip if already processed
+  const eventRef = doc(db, "teedropper_webhook_events", session.id);
+  const existing = await getDoc(eventRef);
+  if (existing.exists()) {
+    console.log("Webhook already processed for session:", session.id);
+    return NextResponse.json({ received: true, duplicate: true });
+  }
+
   // Extract customer info
   const customerName = session.shipping_details?.name || session.customer_details?.name || "Customer";
   const shipping = session.shipping_details?.address;
@@ -38,27 +48,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No shipping address" }, { status: 400 });
   }
 
-  // Get product info from session metadata or line items
+  // Get variant ID from session metadata (set by /api/checkout)
+  const variantId = session.metadata?.printful_variant_id;
+  const size = session.metadata?.size || "";
+
+  if (!variantId) {
+    console.error("No printful_variant_id in session metadata:", session.id);
+    return NextResponse.json({ error: "No Printful variant ID" }, { status: 400 });
+  }
+
+  // Get amount from line items
   const lineItemsRes = await stripe.checkout.sessions.listLineItems(session.id);
-  const items = lineItemsRes.data;
-
-  if (!items.length) {
-    return NextResponse.json({ error: "No items in session" }, { status: 400 });
-  }
-
-  // Build Printful order
-  const printfulItems = items.map((item) => ({
-    sync_variant_id: item.price?.metadata?.printful_variant_id,
-    quantity: item.quantity || 1,
-    retail_price: ((item.amount_total || 0) / 100).toFixed(2),
-  })).filter((i) => i.sync_variant_id);
-
-  if (!printfulItems.length) {
-    console.error("No Printful variant IDs found on Stripe line items. Add printful_variant_id to Price metadata.");
-    return NextResponse.json({ error: "No Printful variant IDs" }, { status: 400 });
-  }
+  const firstItem = lineItemsRes.data[0];
+  const retailPrice = ((firstItem?.amount_total || 0) / 100).toFixed(2);
+  const quantity = firstItem?.quantity || 1;
 
   const printfulOrder = {
+    confirm: true, // Auto-confirm so order ships immediately
     recipient: {
       name: customerName,
       email,
@@ -69,7 +75,13 @@ export async function POST(req: NextRequest) {
       country_code: shipping.country || "US",
       zip: shipping.postal_code || "",
     },
-    items: printfulItems,
+    items: [
+      {
+        sync_variant_id: variantId,
+        quantity,
+        retail_price: retailPrice,
+      },
+    ],
   };
 
   try {
@@ -89,8 +101,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Printful order failed", details: data }, { status: 500 });
     }
 
-    console.log("Printful order created:", data.result?.id);
-    return NextResponse.json({ success: true, printful_order_id: data.result?.id });
+    const printfulOrderId = data.result?.id;
+    console.log("Printful order created and confirmed:", printfulOrderId);
+
+    // Log order to Firestore
+    await setDoc(eventRef, {
+      processedAt: Date.now(),
+      printfulOrderId,
+      customerEmail: email,
+      customerName,
+      size,
+      variantId,
+    });
+
+    return NextResponse.json({ success: true, printful_order_id: printfulOrderId });
   } catch (err) {
     console.error("Printful API error:", err);
     return NextResponse.json({ error: "Printful API error" }, { status: 500 });

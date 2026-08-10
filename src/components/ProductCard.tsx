@@ -34,14 +34,12 @@ export default function ProductCard({ product }: { product: Product }) {
         <p className="text-gray-500 text-sm mt-1 line-clamp-2">{product.description}</p>
         <div className="flex items-center justify-between mt-4">
           <span className="text-xl font-black text-gray-900">${product.price.toFixed(2)}</span>
-          <a
-            href={product.stripeLink}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={`/shop/${product.id}`}
             className="bg-black text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-yellow-400 hover:text-black transition-colors"
           >
             Buy Now
-          </a>
+          </Link>
         </div>
       </div>
     </div>

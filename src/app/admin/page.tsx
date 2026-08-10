@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
+import { SIZES } from "@/lib/products";
 
 const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "teedropper2024";
 
@@ -15,10 +16,10 @@ export default function AdminPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [stripeLink, setStripeLink] = useState("");
   const [tag, setTag] = useState("Trending");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [variants, setVariants] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -39,10 +40,26 @@ export default function AdminPage() {
     setImagePreview(URL.createObjectURL(file));
   }
 
+  function handleVariant(size: string, value: string) {
+    setVariants((prev) => {
+      const next = { ...prev };
+      if (value.trim()) {
+        next[size] = value.trim();
+      } else {
+        delete next[size];
+      }
+      return next;
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name || !price || !stripeLink) {
-      setError("Name, price, and Stripe link are required.");
+    if (!name || !price) {
+      setError("Name and price are required.");
+      return;
+    }
+    if (Object.keys(variants).length === 0) {
+      setError("Add at least one size variant ID from Printful.");
       return;
     }
     setLoading(true);
@@ -58,8 +75,8 @@ export default function AdminPage() {
         name,
         description,
         price: parseFloat(price),
-        stripeLink,
         tag,
+        variants,
         image: imageUrl,
         createdAt: Date.now(),
       });
@@ -67,8 +84,8 @@ export default function AdminPage() {
       setName("");
       setDescription("");
       setPrice("");
-      setStripeLink("");
       setTag("Trending");
+      setVariants({});
       setImageFile(null);
       setImagePreview(null);
       if (fileRef.current) fileRef.current.value = "";
@@ -195,16 +212,27 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Stripe Link */}
+          {/* Printful Variant IDs */}
           <div>
-            <label className="block text-sm font-bold mb-2 uppercase tracking-wide">Stripe Payment Link *</label>
-            <input
-              type="url"
-              value={stripeLink}
-              onChange={(e) => setStripeLink(e.target.value)}
-              placeholder="https://buy.stripe.com/..."
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black"
-            />
+            <label className="block text-sm font-bold mb-1 uppercase tracking-wide">Printful Sync Variant IDs *</label>
+            <p className="text-xs text-gray-400 mb-3">
+              From Printful &rarr; TeeDropper store &rarr; product &rarr; copy the sync variant ID for each size.
+              Leave a size blank to hide it.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {SIZES.map((size) => (
+                <div key={size} className="flex items-center gap-2">
+                  <span className="w-10 text-sm font-black text-gray-600 shrink-0">{size}</span>
+                  <input
+                    type="text"
+                    value={variants[size] || ""}
+                    onChange={(e) => handleVariant(size, e.target.value)}
+                    placeholder="ID"
+                    className="flex-1 border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-black font-mono"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
           <button
