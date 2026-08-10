@@ -3,7 +3,8 @@
 import { useState, useRef } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { signInAnonymously } from "firebase/auth";
+import { db, storage, auth } from "@/lib/firebase";
 import { SIZES } from "@/lib/products";
 
 const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "teedropper2024";
@@ -25,8 +26,9 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  function handleLogin() {
+  async function handleLogin() {
     if (pw === ADMIN_PASSWORD) {
+      await signInAnonymously(auth);
       setAuthed(true);
     } else {
       setPwError(true);
