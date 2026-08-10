@@ -1,13 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { useState, useRef } from "react";
-import { collection, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { signInAnonymously } from "firebase/auth";
-import { db, storage, auth } from "@/lib/firebase";
+import { storage } from "@/lib/firebase";
 import { SIZES } from "@/lib/products";
-
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "teedropper2024";
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
@@ -26,9 +22,9 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  async function handleLogin() {
-    if (pw === ADMIN_PASSWORD) {
-      await signInAnonymously(auth);
+  function handleLogin() {
+    // Password validated server-side on submit - just store it
+    if (pw.trim()) {
       setAuthed(true);
     } else {
       setPwError(true);
@@ -73,15 +69,30 @@ export default function AdminPage() {
         await uploadBytes(storageRef, imageFile);
         imageUrl = await getDownloadURL(storageRef);
       }
-      await addDoc(collection(db, "teedropper_products"), {
-        name,
-        description,
-        price: parseFloat(price),
-        tag,
-        variants,
-        image: imageUrl,
-        createdAt: Date.now(),
+
+      const res = await fetch("/api/admin/add-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password: pw,
+          product: { name, description, price, tag, image: imageUrl, variants },
+        }),
       });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setAuthed(false);
+          setPwError(true);
+          setError("Wrong password.");
+        } else {
+          setError(data.error || "Something went wrong. Try again.");
+        }
+        setLoading(false);
+        return;
+      }
+
       setSuccess(true);
       setName("");
       setDescription("");
@@ -92,9 +103,8 @@ export default function AdminPage() {
       setImagePreview(null);
       if (fileRef.current) fileRef.current.value = "";
       setTimeout(() => setSuccess(false), 4000);
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Try again.");
-      console.error(err);
     }
     setLoading(false);
   }
@@ -142,7 +152,6 @@ export default function AdminPage() {
         )}
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 shadow-sm space-y-5">
-          {/* Image Upload */}
           <div>
             <label className="block text-sm font-bold mb-2 uppercase tracking-wide">Shirt Image</label>
             <div
@@ -161,7 +170,6 @@ export default function AdminPage() {
             <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} className="hidden" />
           </div>
 
-          {/* Name */}
           <div>
             <label className="block text-sm font-bold mb-2 uppercase tracking-wide">Shirt Name *</label>
             <input
@@ -173,7 +181,6 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm font-bold mb-2 uppercase tracking-wide">Description</label>
             <textarea
@@ -185,7 +192,6 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Price + Tag */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold mb-2 uppercase tracking-wide">Price *</label>
@@ -214,7 +220,6 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Printful Variant IDs */}
           <div>
             <label className="block text-sm font-bold mb-1 uppercase tracking-wide">Printful Sync Variant IDs *</label>
             <p className="text-xs text-gray-400 mb-3">
