@@ -1,7 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Product, SIZES } from "@/lib/products";
 import { notFound, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -18,23 +16,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const [sizeError, setSizeError] = useState(false);
 
   useEffect(() => {
-    async function load() {
-      const snap = await getDoc(doc(db, "teedropper_products", id));
-      if (!snap.exists()) {
-        setLoading(false);
-        return;
-      }
-      setProduct({ id: snap.id, ...snap.data() } as Product);
-      setLoading(false);
-    }
-    load();
+    fetch(`/api/products/${id}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { setProduct(data); setLoading(false); })
+      .catch(() => setLoading(false));
   }, [id]);
 
   async function handleBuy() {
-    if (!selectedSize) {
-      setSizeError(true);
-      return;
-    }
+    if (!selectedSize) { setSizeError(true); return; }
     setBuying(true);
     setSizeError(false);
     try {
@@ -93,9 +82,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     key={size}
                     onClick={() => { setSelectedSize(size); setSizeError(false); }}
                     className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-colors ${
-                      selectedSize === size
-                        ? "bg-black text-white border-black"
-                        : "border-gray-300 text-gray-700 hover:border-black"
+                      selectedSize === size ? "bg-black text-white border-black" : "border-gray-300 text-gray-700 hover:border-black"
                     }`}
                   >
                     {size}

@@ -1,7 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import ProductCard from "@/components/ProductCard";
 import { Product } from "@/lib/products";
 
@@ -10,14 +8,10 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      const q = query(collection(db, "teedropper_products"), orderBy("createdAt", "desc"));
-      const snap = await getDocs(q);
-      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Product));
-      setProducts(items);
-      setLoading(false);
-    }
-    load();
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => { setProducts(data); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
   return (

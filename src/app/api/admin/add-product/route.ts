@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebase-admin";
+import { getAdminDb } from "@/lib/firebase-admin";
+
+export const dynamic = "force-dynamic";
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD!;
 
@@ -16,7 +18,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const ref = await adminDb.collection("teedropper_products").add({
+  const db = getAdminDb();
+
+  const ref = await db.collection("teedropper_products").add({
     name,
     description: description || "",
     price: parseFloat(price),

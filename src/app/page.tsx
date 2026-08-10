@@ -1,8 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { collection, getDocs, orderBy, query, limit } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import ProductCard from "@/components/ProductCard";
 import { Product } from "@/lib/products";
 
@@ -10,12 +8,9 @@ export default function Home() {
   const [featured, setFeatured] = useState<Product[]>([]);
 
   useEffect(() => {
-    async function load() {
-      const q = query(collection(db, "teedropper_products"), orderBy("createdAt", "desc"), limit(4));
-      const snap = await getDocs(q);
-      setFeatured(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Product)));
-    }
-    load();
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => setFeatured(data.slice(0, 4)));
   }, []);
 
   return (
