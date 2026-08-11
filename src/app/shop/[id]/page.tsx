@@ -11,6 +11,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [beltSiblings, setBeltSiblings] = useState<Product[]>([]);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [buying, setBuying] = useState(false);
@@ -21,7 +22,17 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   useEffect(() => {
     fetch(`/api/products/${id}`)
       .then((r) => r.ok ? r.json() : null)
-      .then((data) => { setProduct(data); setLoading(false); })
+      .then((data: Product | null) => {
+        setProduct(data);
+        setLoading(false);
+        if (data?.name.toUpperCase().includes("IGBBMN")) {
+          fetch("/api/products")
+            .then((r) => r.json())
+            .then((all: Product[]) =>
+              setBeltSiblings(all.filter((p) => p.name.toUpperCase().includes("IGBBMN") && p.id !== data.id))
+            );
+        }
+      })
       .catch(() => setLoading(false));
   }, [id]);
 
@@ -111,6 +122,31 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           {product.name.toUpperCase().includes("IGBBMN") && (
             <div className="inline-flex items-center gap-2 bg-yellow-50 border border-yellow-300 text-yellow-800 text-sm font-bold px-4 py-2 rounded-full mb-6">
               Print is on the back of the shirt
+            </div>
+          )}
+          {beltSiblings.length > 0 && (
+            <div className="mb-6">
+              <p className="text-sm font-bold uppercase tracking-wide mb-3">Also available in</p>
+              <div className="flex flex-wrap gap-3">
+                {beltSiblings.map((p) => {
+                  const match = p.name.match(/\b(White|Blue|Purple|Brown|Black)\s+Belt\b/i);
+                  const label = match ? `${match[1]} Belt` : p.name;
+                  return (
+                    <Link
+                      key={p.id}
+                      href={`/shop/${p.id}`}
+                      className="flex items-center gap-2 border-2 border-gray-200 hover:border-black rounded-full px-4 py-2 text-sm font-bold transition-colors"
+                    >
+                      {p.image && (
+                        <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-100 shrink-0">
+                          <Image src={p.image} alt={label} fill className="object-cover" sizes="24px" />
+                        </div>
+                      )}
+                      {label}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           )}
           <div className="text-4xl font-black mb-6">${product.price.toFixed(2)}</div>
