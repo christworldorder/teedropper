@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -31,9 +30,10 @@ export async function POST(req: NextRequest) {
   };
 
   // Idempotency: skip if already processed
-  const eventRef = doc(db, "teedropper_webhook_events", session.id);
-  const existing = await getDoc(eventRef);
-  if (existing.exists()) {
+  const db = getAdminDb();
+  const eventRef = db.collection("teedropper_webhook_events").doc(session.id);
+  const existing = await eventRef.get();
+  if (existing.exists) {
     console.log("Webhook already processed for session:", session.id);
     return NextResponse.json({ received: true, duplicate: true });
   }
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
     console.log("Printful order created and confirmed:", printfulOrderId);
 
     // Log order to Firestore
-    await setDoc(eventRef, {
+    await eventRef.set({
       processedAt: Date.now(),
       printfulOrderId,
       customerEmail: email,
