@@ -30,7 +30,7 @@ export default function PrivacyPolicy() {
 
         <section>
           <h2 className="text-xl font-black uppercase tracking-tight text-black mb-3">Contact</h2>
-          <p>Questions? Email us at <a href="mailto:support@teedropper.com" className="underline hover:text-yellow-500">support@teedropper.com</a>.</p>
+          <p>Questions? Email us at <a href="mailto:teedropper@proton.me" className="underline hover:text-yellow-500">teedropper@proton.me</a>.</p>
         </section>
       </div>
     </div>
