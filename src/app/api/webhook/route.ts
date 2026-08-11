@@ -25,14 +25,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
-  const rawSession = event.data.object as Stripe.Checkout.Session;
-
-  // Re-fetch full session so shipping_details is always populated
-  const session = await stripe.checkout.sessions.retrieve(rawSession.id, {
-    expand: ["line_items", "shipping_details"],
-  }) as Stripe.Checkout.Session & {
+  const rawSession = event.data.object as Stripe.Checkout.Session & {
     shipping_details?: { name?: string; address?: { line1?: string; line2?: string; city?: string; state?: string; country?: string; postal_code?: string } };
   };
+
+  // Re-fetch session to get expanded line_items; use rawSession for shipping (already in payload)
+  const fullSession = await stripe.checkout.sessions.retrieve(rawSession.id, {
+    expand: ["line_items"],
+  });
+
+  const session = { ...rawSession, line_items: fullSession.line_items };
 
   // Idempotency: skip if already processed
   const db = getAdminDb();
