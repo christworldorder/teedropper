@@ -25,7 +25,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session & {
+  const rawSession = event.data.object as Stripe.Checkout.Session;
+
+  // Re-fetch full session so shipping_details is always populated
+  const session = await stripe.checkout.sessions.retrieve(rawSession.id, {
+    expand: ["line_items", "shipping_details"],
+  }) as Stripe.Checkout.Session & {
     shipping_details?: { name?: string; address?: { line1?: string; line2?: string; city?: string; state?: string; country?: string; postal_code?: string } };
   };
 
@@ -57,9 +62,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No Printful variant ID" }, { status: 400 });
   }
 
-  // Get amount from line items
-  const lineItemsRes = await stripe.checkout.sessions.listLineItems(session.id);
-  const firstItem = lineItemsRes.data[0];
+  // Get amount from expanded line items
+  const firstItem = (session.line_items as Stripe.ApiList<Stripe.LineItem> | undefined)?.data?.[0];
   const retailPrice = ((firstItem?.amount_total || 0) / 100).toFixed(2);
   const quantity = firstItem?.quantity || 1;
 
