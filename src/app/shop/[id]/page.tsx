@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Product, SIZES } from "@/lib/products";
+import { Product, getColors, getSizesForColor, isColorVariant, SIZES } from "@/lib/products";
 import { notFound, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,9 +11,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [buying, setBuying] = useState(false);
   const [sizeError, setSizeError] = useState(false);
+  const [colorError, setColorError] = useState(false);
+  const [lightbox, setLightbox] = useState(false);
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -23,14 +26,17 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   }, [id]);
 
   async function handleBuy() {
+    const hasColors = product && isColorVariant(product.variants);
+    if (hasColors && !selectedColor) { setColorError(true); return; }
     if (!selectedSize) { setSizeError(true); return; }
     setBuying(true);
+    setColorError(false);
     setSizeError(false);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: id, size: selectedSize }),
+        body: JSON.stringify({ productId: id, color: selectedColor || undefined, size: selectedSize }),
       });
       const data = await res.json();
       if (data.url) {
@@ -48,7 +54,14 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   if (loading) return <div className="text-center py-20 text-gray-400">Loading...</div>;
   if (!product) return notFound();
 
-  const availableSizes = SIZES.filter((s) => product.variants?.[s]);
+  const hasColors = isColorVariant(product.variants);
+  const colors = hasColors ? getColors(product.variants) : [];
+  const availableSizes = hasColors
+    ? (selectedColor ? getSizesForColor(product.variants, selectedColor) : [])
+    : SIZES.filter((s) => product.variants?.[s]);
+
+  // Image: use color-specific if selected, else default
+  const displayImage = (selectedColor && product.colorImages?.[selectedColor]) || product.image;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
@@ -56,22 +69,74 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         &larr; Back to Shop
       </Link>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-square">
-          {product.image ? (
-            <Image src={product.image} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+        <div
+          className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-square cursor-zoom-in"
+          onClick={() => displayImage && setLightbox(true)}
+        >
+          {displayImage ? (
+            <Image src={displayImage} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-contain" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-8xl text-gray-300">👕</div>
           )}
           <span className="absolute top-4 left-4 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
             {product.tag}
           </span>
+          {displayImage && (
+            <span className="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">
+              Tap to zoom
+            </span>
+          )}
         </div>
+
+        {/* Lightbox */}
+        {lightbox && displayImage && (
+          <div
+            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+            onClick={() => setLightbox(false)}
+          >
+            <button
+              className="absolute top-4 right-4 text-white text-4xl font-black leading-none hover:text-yellow-400"
+              onClick={() => setLightbox(false)}
+            >
+              &times;
+            </button>
+            <div className="relative w-full max-w-2xl aspect-square" onClick={(e) => e.stopPropagation()}>
+              <Image src={displayImage} alt={product.name} fill sizes="100vw" className="object-contain" />
+            </div>
+          </div>
+        )}
         <div className="flex flex-col justify-center">
           <h1 className="text-4xl font-black uppercase tracking-tight mb-4">{product.name}</h1>
           <p className="text-gray-600 text-lg mb-6">{product.description}</p>
+          {product.name.toUpperCase().includes("IGBBMN") && (
+            <div className="inline-flex items-center gap-2 bg-yellow-50 border border-yellow-300 text-yellow-800 text-sm font-bold px-4 py-2 rounded-full mb-6">
+              Print is on the back of the shirt
+            </div>
+          )}
           <div className="text-4xl font-black mb-6">${product.price.toFixed(2)}</div>
 
-          {availableSizes.length > 0 && (
+          {hasColors && (
+            <div className="mb-6">
+              <p className="text-sm font-bold uppercase tracking-wide mb-3">
+                Select Color {colorError && <span className="text-red-500 normal-case font-normal ml-2">— Please pick a color</span>}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {colors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => { setSelectedColor(color); setSelectedSize(""); setColorError(false); }}
+                    className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-colors ${
+                      selectedColor === color ? "bg-black text-white border-black" : "border-gray-300 text-gray-700 hover:border-black"
+                    }`}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(availableSizes.length > 0) && (
             <div className="mb-6">
               <p className="text-sm font-bold uppercase tracking-wide mb-3">
                 Select Size {sizeError && <span className="text-red-500 normal-case font-normal ml-2">— Please pick a size</span>}
@@ -90,6 +155,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 ))}
               </div>
             </div>
+          )}
+
+          {hasColors && !selectedColor && availableSizes.length === 0 && (
+            <p className="text-sm text-gray-400 mb-6">Pick a color to see available sizes.</p>
           )}
 
           <button

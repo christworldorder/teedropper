@@ -5,6 +5,11 @@ import Navbar from "@/components/Navbar";
 export const metadata: Metadata = {
   title: "TeeDropper - Trending Tees Dropped Daily",
   description: "Viral tees for the moment. New drops every week.",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
