@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "files.cdn.printful.com",
       },
+      {
+        protocol: "https",
+        hostname: "teedropper.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.teedropper.com",
+      },
     ],
   },
 };
