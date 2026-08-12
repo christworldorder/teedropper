@@ -10,7 +10,7 @@ export default function Navbar() {
     <nav className="bg-black text-white sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/">
-          <Image src="/logo.png" alt="TeeDropper" width={52} height={52} className="rounded-full" />
+          <Image src="/logo.png" alt="TeeDropper" width={80} height={80} className="rounded-full" />
         </Link>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link href="/shop" className="hover:text-yellow-400 transition-colors">Shop</Link>
