@@ -26,6 +26,11 @@ export default function ProductPageClient({ id }: { id: string }) {
       .then((data: Product | null) => {
         setProduct(data);
         setLoading(false);
+        // Auto-select color if only one option
+        if (data) {
+          const cols = getColors(data.variants || {});
+          if (cols.length === 1) setSelectedColor(cols[0]);
+        }
         if (data?.name.toUpperCase().includes("IGBBMN")) {
           fetch("/api/products")
             .then((r) => r.json())
@@ -152,7 +157,7 @@ export default function ProductPageClient({ id }: { id: string }) {
           )}
           <div className="text-4xl font-black mb-6">${product.price.toFixed(2)}</div>
 
-          {hasColors && (
+          {hasColors && colors.length > 1 && (
             <div className="mb-6">
               <p className="text-sm font-bold uppercase tracking-wide mb-3">
                 Select Color {colorError && <span className="text-red-500 normal-case font-normal ml-2">— Please pick a color</span>}
