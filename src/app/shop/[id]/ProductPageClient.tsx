@@ -17,6 +17,8 @@ export default function ProductPageClient({ id }: { id: string }) {
   const [colorError, setColorError] = useState(false);
   const [checkoutError, setCheckoutError] = useState(false);
   const [lightbox, setLightbox] = useState(false);
+  const [sizeChart, setSizeChart] = useState(false);
+  const [measurements, setMeasurements] = useState<{ type_label: string; values: { size: string; value?: string; min_value?: string; max_value?: string }[] }[] | null>(null);
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -173,9 +175,22 @@ export default function ProductPageClient({ id }: { id: string }) {
 
           {(availableSizes.length > 0) && (
             <div className="mb-6">
-              <p className="text-sm font-bold uppercase tracking-wide mb-3">
-                Select Size {sizeError && <span className="text-red-500 normal-case font-normal ml-2">— Please pick a size</span>}
-              </p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-bold uppercase tracking-wide">
+                  Select Size {sizeError && <span className="text-red-500 normal-case font-normal ml-2">— Please pick a size</span>}
+                </p>
+                <button
+                  onClick={() => {
+                    setSizeChart(true);
+                    if (!measurements) {
+                      fetch(`/api/sizes/${id}`).then(r => r.json()).then(d => setMeasurements(d.measurements || null));
+                    }
+                  }}
+                  className="text-xs underline text-gray-400 hover:text-black"
+                >
+                  Size Guide
+                </button>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {availableSizes.map((size) => (
                   <button
@@ -218,6 +233,47 @@ export default function ProductPageClient({ id }: { id: string }) {
           </div>
         </div>
       </div>
+
+      {/* Size Chart Modal */}
+      {sizeChart && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setSizeChart(false)}>
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 relative" onClick={e => e.stopPropagation()}>
+            <button className="absolute top-4 right-4 text-2xl font-black hover:text-yellow-500" onClick={() => setSizeChart(false)}>&times;</button>
+            <h2 className="text-xl font-black uppercase tracking-tight mb-4">Size Guide (inches)</h2>
+            {!measurements ? (
+              <p className="text-gray-400 text-sm">Loading...</p>
+            ) : (
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-black text-white">
+                    <th className="px-3 py-2 text-left font-bold">Size</th>
+                    {measurements.map(m => (
+                      <th key={m.type_label} className="px-3 py-2 text-left font-bold">{m.type_label}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {["XS","S","M","L","XL","2XL","3XL"].map((size, i) => {
+                    const hasSize = measurements[0]?.values.some(v => v.size === size);
+                    if (!hasSize) return null;
+                    return (
+                      <tr key={size} className={i % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                        <td className="px-3 py-2 font-bold">{size}</td>
+                        {measurements.map(m => {
+                          const v = m.values.find(v => v.size === size);
+                          const val = v ? (v.value || (v.min_value && v.max_value ? `${v.min_value}–${v.max_value}` : v.min_value || "")) : "—";
+                          return <td key={m.type_label} className="px-3 py-2">{val}</td>;
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+            <p className="text-xs text-gray-400 mt-4">Measurements may vary by up to 2 inches.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
