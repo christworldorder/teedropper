@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["firebase", "@firebase/app", "@firebase/firestore", "@firebase/storage", "@firebase/auth", "@firebase/util", "@firebase/component", "@firebase/logger"],
@@ -20,4 +21,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  telemetry: false,
+});

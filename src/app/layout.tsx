@@ -26,6 +26,7 @@ export default function RootLayout({
           <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
             <span>© {new Date().getFullYear()} TeeDropper. All rights reserved.</span>
             <div className="flex gap-6">
+              <a href="/support" className="hover:text-white transition-colors">Support</a>
               <a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a>
               <a href="/terms" className="hover:text-white transition-colors">Terms</a>
               <a href="/returns" className="hover:text-white transition-colors">Returns</a>
