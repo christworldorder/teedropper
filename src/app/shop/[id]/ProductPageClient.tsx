@@ -186,7 +186,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                       fetch(`/api/sizes/${id}`).then(r => r.json()).then(d => setMeasurements(d.measurements || null));
                     }
                   }}
-                  className="text-xs font-bold underline text-gray-500 hover:text-yellow-500 transition-colors"
+                  className="text-xs font-bold bg-gray-100 hover:bg-yellow-400 px-3 py-1 rounded-full transition-colors"
                 >
                   Size Guide
                 </button>
