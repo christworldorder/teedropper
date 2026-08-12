@@ -22,9 +22,11 @@ export default function Home() {
             New drops weekly
           </span>
           <h1 className="text-5xl md:text-7xl font-black uppercase leading-none tracking-tight mb-6">
-            Viral Tees.<br />
-            <span className="text-yellow-400">Right Now.</span>
+            What We Carry
           </h1>
+          <p className="text-white/70 text-lg mb-2">
+            BJJ / MMA &middot; Fitness &middot; Faith &middot; Meme Shirts &middot; Rashguards &middot; Lifestyle
+          </p>
 
           <Link
             href="/shop"
@@ -40,13 +42,6 @@ export default function Home() {
         <span>NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot; VIRAL TEES &middot; NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot; VIRAL TEES &middot; NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot; VIRAL TEES &middot;</span>
       </div>
 
-      {/* What We Carry */}
-      <section className="max-w-3xl mx-auto px-4 py-16 text-center">
-        <h2 className="text-3xl font-black uppercase tracking-tight mb-4">What We Carry</h2>
-        <p className="text-gray-500 text-lg leading-relaxed">
-          BJJ / MMA &middot; Fitness &middot; Faith &middot; Meme Shirts &middot; Rashguards &middot; Lifestyle
-        </p>
-      </section>
 
       {/* Featured Products */}
       {featured.length > 0 && (
