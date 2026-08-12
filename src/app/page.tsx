@@ -16,12 +16,12 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-black text-white py-24 px-4 text-center">
+      <section className="bg-black text-white py-10 md:py-24 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <span className="inline-block bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-6">
             New drops weekly
           </span>
-          <h1 className="text-5xl md:text-7xl font-black uppercase leading-none tracking-tight mb-6">
+          <h1 className="text-3xl md:text-7xl font-black uppercase leading-none tracking-tight mb-4">
             What We Carry
           </h1>
           <p className="text-white/70 text-lg mb-2">
