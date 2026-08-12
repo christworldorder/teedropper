@@ -20,7 +20,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     headers: { Authorization: `Bearer ${printfulApiKey}` },
   });
   const variantData = await variantRes.json();
-  const productId = variantData.result?.variant?.product?.product_id;
+  const productId = variantData.result?.product?.product_id;
 
   if (!productId) return NextResponse.json({ error: "Could not find base product" }, { status: 500 });
 
