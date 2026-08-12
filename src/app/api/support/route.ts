@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     await resend.emails.send({
-      from: "TeeDropper Support <support@teedropper.com>",
+      from: "TeeDropper Support <support@nevermissed.app>",
       to: "teedropper@proton.me",
       subject: `[Support] ${issue} — ${orderEmail}`,
       html: `
