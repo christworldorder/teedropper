@@ -191,11 +191,6 @@ export default function ProductPageClient({ id }: { id: string }) {
         <div className="flex flex-col justify-center">
           <h1 className="text-4xl font-black uppercase tracking-tight mb-4">{product.name}</h1>
           <p className="text-gray-600 text-lg mb-6">{product.description}</p>
-          {product.name.toUpperCase().includes("IGBBMN") && (
-            <div className="inline-flex items-center gap-2 bg-yellow-50 border border-yellow-300 text-yellow-800 text-sm font-bold px-4 py-2 rounded-full mb-6">
-              Print is on the back of the shirt
-            </div>
-          )}
           {beltSiblings.length > 0 && (
             <div className="mb-6">
               <p className="text-sm font-bold uppercase tracking-wide mb-3">Also available in</p>
