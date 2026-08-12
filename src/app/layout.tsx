@@ -6,9 +6,9 @@ export const metadata: Metadata = {
   title: "TeeDropper - Trending Tees Dropped Daily",
   description: "Viral tees for the moment. New drops every week.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
   openGraph: {
     title: "TeeDropper — Viral Tees. Right Now.",
