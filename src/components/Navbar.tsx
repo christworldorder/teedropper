@@ -12,6 +12,7 @@ export default function Navbar() {
         <Link href="/">
           <Image src="/logo.png" alt="TeeDropper" width={120} height={120} className="rounded-full" />
         </Link>
+        <span className="hidden md:block text-white/50 text-xs font-bold uppercase tracking-widest">Jiu Jitsu &middot; MMA &middot; Faith &middot; Fitness</span>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link href="/shop" className="bg-yellow-400 text-black px-5 py-2 rounded-full font-bold hover:bg-yellow-300 transition-colors">
             Shop
