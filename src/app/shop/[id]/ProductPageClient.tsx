@@ -186,7 +186,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                       fetch(`/api/sizes/${id}`).then(r => r.json()).then(d => setMeasurements(d.measurements || null));
                     }
                   }}
-                  className="text-xs font-bold bg-gray-100 hover:bg-yellow-400 px-3 py-1 rounded-full transition-colors"
+                  className="text-xs font-bold bg-yellow-400 hover:bg-yellow-300 text-black px-3 py-1 rounded-full transition-colors"
                 >
                   Size Guide
                 </button>
@@ -239,9 +239,9 @@ export default function ProductPageClient({ id }: { id: string }) {
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setSizeChart(false)}>
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 relative" onClick={e => e.stopPropagation()}>
             <button className="absolute top-4 right-4 text-2xl font-black hover:text-yellow-500" onClick={() => setSizeChart(false)}>&times;</button>
-            <h2 className="text-xl font-black uppercase tracking-tight mb-4">Size Guide (inches)</h2>
+            <h2 className="text-xl font-black uppercase tracking-tight mb-4 text-black">Size Guide (inches)</h2>
             {!measurements ? (
-              <p className="text-gray-400 text-sm">Loading...</p>
+              <p className="text-gray-500 text-sm">Loading...</p>
             ) : (
               <table className="w-full text-sm border-collapse">
                 <thead>
@@ -257,12 +257,12 @@ export default function ProductPageClient({ id }: { id: string }) {
                     const hasSize = measurements[0]?.values.some(v => v.size === size);
                     if (!hasSize) return null;
                     return (
-                      <tr key={size} className={i % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                        <td className="px-3 py-2 font-bold">{size}</td>
+                      <tr key={size} className={i % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                        <td className="px-3 py-2 font-black text-black">{size}</td>
                         {measurements.map(m => {
                           const v = m.values.find(v => v.size === size);
                           const val = v ? (v.value || (v.min_value && v.max_value ? `${v.min_value}–${v.max_value}` : v.min_value || "")) : "—";
-                          return <td key={m.type_label} className="px-3 py-2">{val}</td>;
+                          return <td key={m.type_label} className="px-3 py-2 text-gray-800">{val}</td>;
                         })}
                       </tr>
                     );
@@ -270,7 +270,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                 </tbody>
               </table>
             )}
-            <p className="text-xs text-gray-400 mt-4">Measurements may vary by up to 2 inches.</p>
+            <p className="text-xs text-gray-500 mt-4">Measurements may vary by up to 2 inches.</p>
           </div>
         </div>
       )}
