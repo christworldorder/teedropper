@@ -25,9 +25,7 @@ export default function Home() {
             Viral Tees.<br />
             <span className="text-yellow-400">Right Now.</span>
           </h1>
-          <p className="text-white/60 text-lg mb-10">
-            The shirts blowing up on X and Facebook. Drop culture for the moment.
-          </p>
+
           <Link
             href="/shop"
             className="inline-block bg-yellow-400 text-black font-black text-lg px-10 py-4 rounded-full hover:bg-yellow-300 transition-colors uppercase tracking-wide"
