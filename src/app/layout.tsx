@@ -10,6 +10,20 @@ export const metadata: Metadata = {
     shortcut: "/favicon.svg",
     apple: "/favicon.svg",
   },
+  openGraph: {
+    title: "TeeDropper — Viral Tees. Right Now.",
+    description: "The shirts blowing up online. New drops every week. Ships in 3-7 days.",
+    url: "https://teedropper.com",
+    siteName: "TeeDropper",
+    images: [{ url: "https://teedropper.com/og-default.jpg", width: 1200, height: 630, alt: "TeeDropper" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TeeDropper — Viral Tees. Right Now.",
+    description: "The shirts blowing up online. New drops every week.",
+    images: ["https://teedropper.com/og-default.jpg"],
+  },
 };
 
 export default function RootLayout({
