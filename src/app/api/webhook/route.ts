@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
 
   const rawSession = event.data.object as Stripe.Checkout.Session & {
     shipping_details?: { name?: string; address?: { line1?: string; line2?: string; city?: string; state?: string; country?: string; postal_code?: string } };
+    collected_information?: { shipping_details?: { address?: { line1?: string; line2?: string; city?: string; state?: string; country?: string; postal_code?: string } } };
   };
 
   // Re-fetch session to get expanded line_items; use rawSession for shipping (already in payload)
@@ -45,14 +46,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true, duplicate: true });
   }
 
-  // Extract customer info
+  // Extract customer info — shipping may be under collected_information (newer Stripe API) or shipping_details (older)
   const customerName = session.shipping_details?.name || session.customer_details?.name || "Customer";
-  const shipping = session.shipping_details?.address;
+  const shipping = session.collected_information?.shipping_details?.address || session.shipping_details?.address || session.customer_details?.address;
   const email = session.customer_details?.email || "";
 
   if (!shipping) {
     console.error("No shipping address on session:", session.id);
-    return NextResponse.json({ error: "No shipping address" }, { status: 400 });
+    return NextResponse.json({ received: true, skipped: "no shipping address" });
   }
 
   // Get variant ID from session metadata (set by /api/checkout)
