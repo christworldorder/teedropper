@@ -39,7 +39,7 @@ export default function Home() {
 
       {/* Ticker */}
       <div className="bg-yellow-400 text-black py-2 overflow-hidden whitespace-nowrap text-sm font-bold tracking-widest uppercase">
-        <span>NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot; VIRAL TEES &middot; NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot; VIRAL TEES &middot; NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot; VIRAL TEES &middot;</span>
+        <span>NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot; NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot; NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot;</span>
       </div>
 
 
