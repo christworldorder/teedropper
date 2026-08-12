@@ -37,10 +37,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Ticker */}
-      <div className="bg-yellow-400 text-black py-2 overflow-hidden whitespace-nowrap text-sm font-bold tracking-widest uppercase">
-        <span>NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot; NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot; NEW DROP &middot; TRENDING NOW &middot; LIMITED RUN &middot;</span>
-      </div>
 
 
       {/* Featured Products */}
