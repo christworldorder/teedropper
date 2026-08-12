@@ -46,7 +46,7 @@ export default function Home() {
       <section className="max-w-3xl mx-auto px-4 py-16 text-center">
         <h2 className="text-3xl font-black uppercase tracking-tight mb-4">What We Carry</h2>
         <p className="text-gray-500 text-lg leading-relaxed">
-          BJJ / MMA &middot; Fitness &middot; Faith &middot; Meme Shirts &middot; Lifestyle
+          BJJ / MMA &middot; Fitness &middot; Faith &middot; Meme Shirts &middot; Rashguards &middot; Lifestyle
         </p>
       </section>
 
