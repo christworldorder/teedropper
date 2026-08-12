@@ -1,74 +1,24 @@
 "use client";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import { Product } from "@/lib/products";
 
 export default function Home() {
-  const [featured, setFeatured] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
-      .then((data) => setFeatured(data.slice(0, 4)));
+      .then(setProducts);
   }, []);
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="bg-black text-white py-10 md:py-24 px-4 text-center">
-        <div className="max-w-3xl mx-auto">
-          <span className="inline-block bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-6">
-            New drops weekly
-          </span>
-          <h1 className="text-3xl md:text-7xl font-black uppercase leading-none tracking-tight mb-4">
-            What We Carry
-          </h1>
-          <p className="text-white/70 text-lg mb-2">
-            BJJ / MMA &middot; Fitness &middot; Faith &middot; Meme Shirts &middot; Rashguards &middot; Lifestyle
-          </p>
-
-          <Link
-            href="/shop"
-            className="inline-block bg-yellow-400 text-black font-black text-lg px-10 py-4 rounded-full hover:bg-yellow-300 transition-colors uppercase tracking-wide"
-          >
-            Shop Now
-          </Link>
-        </div>
-      </section>
-
-
-
-      {/* Featured Products */}
-      {featured.length > 0 && (
-        <section className="max-w-6xl mx-auto px-4 py-16">
-          <div className="flex items-center justify-between mb-10">
-            <h2 className="text-3xl font-black uppercase tracking-tight">Latest Drops</h2>
-            <Link href="/shop" className="text-sm font-bold underline underline-offset-4 hover:text-yellow-500">
-              See all
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featured.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* CTA Banner */}
-      <section className="bg-black text-white py-16 px-4 text-center">
-        <h2 className="text-3xl md:text-5xl font-black uppercase mb-4">
-          Don&apos;t Miss the <span className="text-yellow-400">Next Drop</span>
-        </h2>
-        <p className="text-white/50 mb-8">Follow us to see what goes viral next.</p>
-        <Link
-          href="/shop"
-          className="inline-block border-2 border-yellow-400 text-yellow-400 font-black px-8 py-3 rounded-full hover:bg-yellow-400 hover:text-black transition-colors uppercase"
-        >
-          Browse All Tees
-        </Link>
-      </section>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
     </div>
   );
 }
