@@ -4,9 +4,11 @@ import { Product, getColors, getSizesForColor, isColorVariant, SIZES } from "@/l
 import { notFound, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
 export default function ProductPageClient({ id }: { id: string }) {
   const router = useRouter();
+  const { addToCart, openDrawer } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [beltSiblings, setBeltSiblings] = useState<Product[]>([]);
@@ -19,6 +21,7 @@ export default function ProductPageClient({ id }: { id: string }) {
   const [lightbox, setLightbox] = useState(false);
   const [sizeChart, setSizeChart] = useState(false);
   const [measurements, setMeasurements] = useState<{ type_label: string; values: { size: string; value?: string; min_value?: string; max_value?: string }[] }[] | null>(null);
+  const [addedToast, setAddedToast] = useState(false);
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -42,14 +45,77 @@ export default function ProductPageClient({ id }: { id: string }) {
       .catch(() => setLoading(false));
   }, [id]);
 
-  async function handleBuy() {
+  function validate(): boolean {
     const hasColors = product && isColorVariant(product.variants);
-    if (hasColors && !selectedColor) { setColorError(true); return; }
-    if (!selectedSize) { setSizeError(true); return; }
-    setBuying(true);
+    if (hasColors && !selectedColor) { setColorError(true); return false; }
+    if (!selectedSize) { setSizeError(true); return false; }
     setColorError(false);
     setSizeError(false);
+    return true;
+  }
+
+  function getVariantId(): string | null {
+    if (!product) return null;
+    const variantKey = selectedColor ? `${selectedColor}-${selectedSize}` : selectedSize;
+    return product.variants?.[variantKey] ?? null;
+  }
+
+  function handleAddToCart() {
+    if (!product) return;
+    if (!validate()) return;
+
+    const variantId = getVariantId();
+    if (!variantId) return;
+
+    const image = (selectedColor && product.colorImages?.[selectedColor]) || product.image || "";
+
+    addToCart({
+      productId: id,
+      name: product.name,
+      image,
+      price: product.price,
+      color: selectedColor || undefined,
+      size: selectedSize,
+      variantId,
+    });
+
+    // Show brief "Added!" toast
+    setAddedToast(true);
+    setTimeout(() => setAddedToast(false), 2000);
+  }
+
+  function handleOpenCart() {
+    if (!product) return;
+    if (!validate()) return;
+
+    const variantId = getVariantId();
+    if (!variantId) return;
+
+    const image = (selectedColor && product.colorImages?.[selectedColor]) || product.image || "";
+
+    addToCart({
+      productId: id,
+      name: product.name,
+      image,
+      price: product.price,
+      color: selectedColor || undefined,
+      size: selectedSize,
+      variantId,
+    });
+
+    openDrawer();
+  }
+
+  async function handleBuyNow() {
+    if (!product) return;
+    if (!validate()) return;
+
+    const variantId = getVariantId();
+    if (!variantId) return;
+
+    setBuying(true);
     setCheckoutError(false);
+
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -216,12 +282,39 @@ export default function ProductPageClient({ id }: { id: string }) {
             <p className="text-sm text-gray-400 mb-6">Pick a color to see available sizes.</p>
           )}
 
+          {/* Added toast */}
+          {addedToast && (
+            <div className="flex items-center gap-2 bg-green-50 border border-green-300 text-green-700 text-sm font-bold px-4 py-2 rounded-full mb-4 animate-pulse">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+              Added to cart!
+            </div>
+          )}
+
+          {/* Add to Cart button */}
           <button
-            onClick={handleBuy}
+            onClick={handleAddToCart}
+            className="block w-full border-2 border-black text-black text-center font-black text-lg py-4 rounded-full hover:bg-black hover:text-white transition-colors uppercase tracking-wide mb-3"
+          >
+            Add to Cart
+          </button>
+
+          {/* Buy Now button */}
+          <button
+            onClick={handleBuyNow}
             disabled={buying}
-            className="block w-full bg-black text-white text-center font-black text-lg py-4 rounded-full hover:bg-yellow-400 hover:text-black transition-colors uppercase tracking-wide mb-4 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="block w-full bg-yellow-400 text-black text-center font-black text-lg py-4 rounded-full hover:bg-yellow-300 transition-colors uppercase tracking-wide mb-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {buying ? "Redirecting to checkout..." : "Buy Now"}
+          </button>
+
+          {/* View Cart link (only when items in cart — opens drawer) */}
+          <button
+            onClick={handleOpenCart}
+            className="block w-full text-center text-sm font-bold text-gray-500 hover:text-black py-2 transition-colors underline underline-offset-2 mb-2"
+          >
+            Add to cart and view cart
           </button>
 
           {checkoutError && (

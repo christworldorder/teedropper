@@ -56,19 +56,50 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true, skipped: "no shipping address" });
   }
 
-  // Get variant ID from session metadata (set by /api/checkout)
-  const variantId = session.metadata?.printful_variant_id;
-  const size = session.metadata?.size || "";
+  // --- Resolve Printful items ---
+  // Multi-item path: metadata has printful_variant_ids as JSON array
+  const rawVariantIds = session.metadata?.printful_variant_ids;
+  const singleVariantId = session.metadata?.printful_variant_id;
 
-  if (!variantId) {
-    console.error("No printful_variant_id in session metadata:", session.id);
+  type PrintfulVariantEntry = { variantId: string; quantity: number };
+
+  let printfulItems: { sync_variant_id: string; quantity: number; retail_price: string }[] = [];
+
+  if (rawVariantIds) {
+    // Multi-item cart checkout
+    let variantEntries: PrintfulVariantEntry[] = [];
+    try {
+      variantEntries = JSON.parse(rawVariantIds) as PrintfulVariantEntry[];
+    } catch (e) {
+      console.error("Failed to parse printful_variant_ids:", e);
+      return NextResponse.json({ error: "Invalid printful_variant_ids metadata" }, { status: 400 });
+    }
+
+    const lineItemsData = (session.line_items as Stripe.ApiList<Stripe.LineItem> | undefined)?.data ?? [];
+
+    printfulItems = variantEntries.map((entry, idx) => {
+      const lineItem = lineItemsData[idx];
+      // Per-unit retail price: total / quantity
+      const unitPrice = lineItem
+        ? ((lineItem.amount_total || 0) / 100 / (lineItem.quantity || 1)).toFixed(2)
+        : "0.00";
+      return {
+        sync_variant_id: entry.variantId,
+        quantity: entry.quantity,
+        retail_price: unitPrice,
+      };
+    });
+  } else if (singleVariantId) {
+    // Legacy single-item path
+    const lineItemsData = (session.line_items as Stripe.ApiList<Stripe.LineItem> | undefined)?.data ?? [];
+    const firstItem = lineItemsData[0];
+    const retailPrice = ((firstItem?.amount_total || 0) / 100).toFixed(2);
+    const quantity = firstItem?.quantity || 1;
+    printfulItems = [{ sync_variant_id: singleVariantId, quantity, retail_price: retailPrice }];
+  } else {
+    console.error("No Printful variant ID(s) in session metadata:", session.id);
     return NextResponse.json({ error: "No Printful variant ID" }, { status: 400 });
   }
-
-  // Get amount from expanded line items
-  const firstItem = (session.line_items as Stripe.ApiList<Stripe.LineItem> | undefined)?.data?.[0];
-  const retailPrice = ((firstItem?.amount_total || 0) / 100).toFixed(2);
-  const quantity = firstItem?.quantity || 1;
 
   const printfulOrder = {
     confirm: true, // Auto-confirm so order ships immediately
@@ -82,13 +113,7 @@ export async function POST(req: NextRequest) {
       country_code: shipping.country || "US",
       zip: shipping.postal_code || "",
     },
-    items: [
-      {
-        sync_variant_id: variantId,
-        quantity,
-        retail_price: retailPrice,
-      },
-    ],
+    items: printfulItems,
   };
 
   try {
@@ -117,8 +142,11 @@ export async function POST(req: NextRequest) {
       printfulOrderId,
       customerEmail: email,
       customerName,
-      size,
-      variantId,
+      items: printfulItems.map((i) => ({ variantId: i.sync_variant_id, quantity: i.quantity })),
+      // Keep legacy fields for single-item orders
+      ...(singleVariantId && !rawVariantIds
+        ? { variantId: singleVariantId, size: session.metadata?.size || "" }
+        : {}),
     });
 
     return NextResponse.json({ success: true, printful_order_id: printfulOrderId });
