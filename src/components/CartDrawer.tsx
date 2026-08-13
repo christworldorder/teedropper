@@ -178,18 +178,23 @@ export default function CartDrawer() {
           return (
             <div className="border-t border-gray-100 px-5 py-5 bg-white">
               {/* Bundle discount badge */}
-              {bundleDiscount && (
+              {bundleDiscount && shipping === 0 && (
                 <div className="bg-green-50 border border-green-200 text-green-700 text-xs font-bold text-center rounded-full px-3 py-1.5 mb-3">
-                  10% bundle discount applied!
+                  10% bundle discount + free shipping!
                 </div>
               )}
-              {!bundleDiscount && discountedTotal < 100 && (
-                <p className="text-xs text-center text-gray-400 mb-3">
-                  Add 1 more item for 10% off &nbsp;·&nbsp; Spend ${(100 - discountedTotal).toFixed(0)} more for free shipping
-                </p>
+              {bundleDiscount && shipping > 0 && (
+                <div className="bg-green-50 border border-green-200 text-green-700 text-xs font-bold text-center rounded-full px-3 py-1.5 mb-3">
+                  10% bundle discount applied! &nbsp;·&nbsp; Spend ${(100 - discountedTotal).toFixed(0)} more for free shipping
+                </div>
               )}
-              {!bundleDiscount && discountedTotal >= 100 && (
+              {!bundleDiscount && shipping === 0 && (
                 <p className="text-xs text-center text-green-600 font-bold mb-3">Free shipping unlocked!</p>
+              )}
+              {!bundleDiscount && shipping > 0 && (
+                <p className="text-xs text-center text-gray-400 mb-3">
+                  Add 1 more item to unlock 10% off
+                </p>
               )}
 
               {/* Price breakdown */}
