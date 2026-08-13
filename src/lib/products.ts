@@ -1,3 +1,5 @@
+export type ProductCategory = "mens" | "womens" | "rashguard-mens" | "rashguard-womens";
+
 export type Product = {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export type Product = {
   price: number;
   image: string;
   tag: string;
+  category?: ProductCategory;
   variants: Record<string, string>; // "Black-XS": "id" OR legacy "XS": "id"
   colorImages?: Record<string, string>; // { Black: "url", Charcoal: "url" }
   createdAt?: number;
