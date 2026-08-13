@@ -296,7 +296,7 @@ export default function ProductPageClient({ id }: { id: string }) {
           {/* Add to Cart button */}
           <button
             onClick={handleAddToCart}
-            className="block w-full border-2 border-black text-black text-center font-black text-lg py-4 rounded-full hover:bg-black hover:text-white transition-colors uppercase tracking-wide mb-3"
+            className="block w-full bg-black text-white text-center font-black text-lg py-4 rounded-full hover:bg-gray-800 transition-colors uppercase tracking-wide mb-3"
           >
             Add to Cart
           </button>
