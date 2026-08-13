@@ -140,9 +140,14 @@ export default function ProductPageClient({ id }: { id: string }) {
 
   const hasColors = isColorVariant(product.variants);
   const colors = hasColors ? getColors(product.variants) : [];
+  const SIZES_SET = new Set(SIZES as readonly string[]);
+  const singleKeys = Object.keys(product.variants || {}).filter((k) => !k.includes("-"));
   const availableSizes = hasColors
     ? (selectedColor ? getSizesForColor(product.variants, selectedColor) : [])
-    : SIZES.filter((s) => product.variants?.[s]);
+    : [
+        ...SIZES.filter((s) => product.variants?.[s]),
+        ...singleKeys.filter((k) => !SIZES_SET.has(k)),
+      ];
 
   const displayImage = (selectedColor && product.colorImages?.[selectedColor]) || product.image;
 
@@ -245,6 +250,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                 <p className="text-sm font-bold uppercase tracking-wide">
                   Select Size {sizeError && <span className="text-red-500 normal-case font-normal ml-2">— Please pick a size</span>}
                 </p>
+
                 <button
                   onClick={() => {
                     setSizeChart(true);
@@ -304,12 +310,12 @@ export default function ProductPageClient({ id }: { id: string }) {
             {buying ? "Redirecting to checkout..." : "Buy Now"}
           </button>
 
-          {/* View Cart link (only when items in cart — opens drawer) */}
+          {/* View Cart link */}
           <button
             onClick={handleOpenCart}
-            className="block w-full text-center text-sm font-bold text-gray-500 hover:text-black py-2 transition-colors underline underline-offset-2 mb-2"
+            className="block w-full text-center text-sm font-bold text-gray-700 hover:text-black py-2 transition-colors underline underline-offset-2 mb-2"
           >
-            Add to cart and view cart
+            Add to cart &amp; view cart
           </button>
 
           {checkoutError && (
@@ -346,7 +352,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {["XS","S","M","L","XL","2XL","3XL"].map((size, i) => {
+                  {availableSizes.map((size, i) => {
                     const hasSize = measurements[0]?.values.some(v => v.size === size);
                     if (!hasSize) return null;
                     return (
