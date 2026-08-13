@@ -127,7 +127,7 @@ export default function ProductPageClient({ id }: { id: string }) {
       });
       const data = await res.json();
       if (data.url) {
-        router.push(data.url);
+        window.location.href = data.url;
       } else {
         setCheckoutError(true);
         setBuying(false);
