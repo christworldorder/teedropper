@@ -5,6 +5,27 @@ import { Product } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
+const ALLOWED_COUNTRIES: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[] = [
+  "US", "CA", "GB", "AU", "DE", "FR", "NL", "SE", "NO", "DK",
+];
+
+const FLAT_SHIPPING_CENTS = 799;   // $7.99
+const FREE_SHIPPING_THRESHOLD = 10000; // $100.00 in cents
+
+function shippingOption(amountCents: number): Stripe.Checkout.SessionCreateParams.ShippingOption {
+  return {
+    shipping_rate_data: {
+      type: "fixed_amount",
+      fixed_amount: { amount: amountCents, currency: "usd" },
+      display_name: amountCents === 0 ? "Free Shipping" : "Standard Shipping",
+      delivery_estimate: {
+        minimum: { unit: "business_day", value: 3 },
+        maximum: { unit: "business_day", value: 7 },
+      },
+    },
+  };
+}
+
 type MultiItem = {
   productId: string;
   color?: string;
@@ -18,7 +39,7 @@ export async function POST(req: NextRequest) {
   const origin = req.headers.get("origin") || "https://teedropper.com";
   const db = getAdminDb();
 
-  // --- Multi-item path ---
+  // --- Multi-item path (cart checkout) ---
   if (Array.isArray(body.items) && body.items.length > 0) {
     const incomingItems: MultiItem[] = body.items;
 
@@ -32,9 +53,10 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    // Build Stripe line items and collect variant IDs
+    // Build Stripe line items and collect Printful variant IDs
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
     const printfulVariants: { variantId: string; quantity: number }[] = [];
+    let totalQty = 0;
 
     for (const incoming of incomingItems) {
       const product = productMap.get(incoming.productId);
@@ -54,14 +76,12 @@ export async function POST(req: NextRequest) {
         : `${product.name} — ${incoming.size}`;
 
       const qty = incoming.quantity && incoming.quantity > 0 ? incoming.quantity : 1;
+      totalQty += qty;
 
       lineItems.push({
         price_data: {
           currency: "usd",
-          product_data: {
-            name: label,
-            images: image ? [image] : [],
-          },
+          product_data: { name: label, images: image ? [image] : [] },
           unit_amount: Math.round(product.price * 100),
         },
         quantity: qty,
@@ -70,15 +90,29 @@ export async function POST(req: NextRequest) {
       printfulVariants.push({ variantId, quantity: qty });
     }
 
-    // Use the first product ID for the cancel URL fallback
-    const cancelProductId = incomingItems[0]?.productId;
+    // Apply 10% bundle discount when 2+ total items
+    const bundleDiscount = totalQty >= 2;
+    if (bundleDiscount) {
+      for (const item of lineItems) {
+        item.price_data!.unit_amount = Math.round(item.price_data!.unit_amount! * 0.9);
+      }
+    }
+
+    // Calculate subtotal (after discount) to determine shipping
+    const subtotalCents = lineItems.reduce(
+      (sum, item) => sum + item.price_data!.unit_amount! * (item.quantity as number),
+      0
+    );
+    const shippingCents = subtotalCents >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING_CENTS;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: lineItems,
-      shipping_address_collection: {
-        allowed_countries: ["US", "CA", "GB", "AU", "DE", "FR", "NL", "SE", "NO", "DK"],
-      },
+      shipping_address_collection: { allowed_countries: ALLOWED_COUNTRIES },
+      shipping_options: [shippingOption(shippingCents)],
+      ...(bundleDiscount
+        ? { custom_text: { submit: { message: "10% bundle discount applied — add more, save more!" } } }
+        : {}),
       metadata: {
         printful_variant_ids: JSON.stringify(printfulVariants),
         product_id: incomingItems.map((i) => i.productId).join(","),
@@ -90,7 +124,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: session.url });
   }
 
-  // --- Single-item legacy path ---
+  // --- Single-item path (Buy Now) ---
   const { productId, color, size } = body;
 
   if (!productId || !size) {
@@ -104,17 +138,16 @@ export async function POST(req: NextRequest) {
 
   const product = { id: docSnap.id, ...docSnap.data() } as Product;
 
-  // Support color-size keys ("Black-XS") or legacy size-only keys ("XS")
   const variantKey = color ? `${color}-${size}` : size;
   const variantId = product.variants?.[variantKey];
-
   if (!variantId) {
     return NextResponse.json({ error: "Variant not available" }, { status: 400 });
   }
 
-  // Use color-specific image if available
   const image = (color && product.colorImages?.[color]) || product.image || "";
   const label = color ? `${product.name} — ${color} / ${size}` : `${product.name} — ${size}`;
+  const unitAmountCents = Math.round(product.price * 100);
+  const shippingCents = unitAmountCents >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING_CENTS;
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -122,18 +155,14 @@ export async function POST(req: NextRequest) {
       {
         price_data: {
           currency: "usd",
-          product_data: {
-            name: label,
-            images: image ? [image] : [],
-          },
-          unit_amount: Math.round(product.price * 100),
+          product_data: { name: label, images: image ? [image] : [] },
+          unit_amount: unitAmountCents,
         },
         quantity: 1,
       },
     ],
-    shipping_address_collection: {
-      allowed_countries: ["US", "CA", "GB", "AU", "DE", "FR", "NL", "SE", "NO", "DK"],
-    },
+    shipping_address_collection: { allowed_countries: ALLOWED_COUNTRIES },
+    shipping_options: [shippingOption(shippingCents)],
     metadata: {
       printful_variant_id: variantId,
       product_id: productId,

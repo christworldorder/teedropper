@@ -32,11 +32,11 @@ export default function CategoryPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/" className="text-gray-500 hover:text-yellow-500 transition-colors text-sm font-medium">
+        <Link href="/" className="text-yellow-500 hover:text-yellow-400 transition-colors text-sm font-bold">
           ← All Categories
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-black text-gray-900">{label}</h1>
+        <span className="text-white/30">/</span>
+        <h1 className="text-2xl font-black text-white">{label}</h1>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {products.map((product) => (

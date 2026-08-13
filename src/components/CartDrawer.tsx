@@ -2,11 +2,9 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
-import { useRouter } from "next/navigation";
 
 export default function CartDrawer() {
-  const { items, removeFromCart, updateQuantity, clearCart, cartTotal, drawerOpen, closeDrawer } = useCart();
-  const router = useRouter();
+  const { items, removeFromCart, updateQuantity, cartTotal, drawerOpen, closeDrawer } = useCart();
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -169,38 +167,76 @@ export default function CartDrawer() {
         </div>
 
         {/* Footer (only when cart has items) */}
-        {items.length > 0 && (
-          <div className="border-t border-gray-100 px-5 py-5 bg-white">
-            {/* Subtotal */}
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-bold text-gray-500 uppercase tracking-wide">Subtotal</span>
-              <span className="text-xl font-black text-black">${cartTotal.toFixed(2)}</span>
+        {items.length > 0 && (() => {
+          const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
+          const bundleDiscount = totalQty >= 2;
+          const discountAmount = bundleDiscount ? cartTotal * 0.1 : 0;
+          const discountedTotal = cartTotal - discountAmount;
+          const shipping = discountedTotal >= 100 ? 0 : 7.99;
+          const grandTotal = discountedTotal + shipping;
+
+          return (
+            <div className="border-t border-gray-100 px-5 py-5 bg-white">
+              {/* Bundle discount badge */}
+              {bundleDiscount && (
+                <div className="bg-green-50 border border-green-200 text-green-700 text-xs font-bold text-center rounded-full px-3 py-1.5 mb-3">
+                  10% bundle discount applied!
+                </div>
+              )}
+              {!bundleDiscount && discountedTotal < 100 && (
+                <p className="text-xs text-center text-gray-400 mb-3">
+                  Add 1 more item for 10% off &nbsp;·&nbsp; Spend ${(100 - discountedTotal).toFixed(0)} more for free shipping
+                </p>
+              )}
+              {!bundleDiscount && discountedTotal >= 100 && (
+                <p className="text-xs text-center text-green-600 font-bold mb-3">Free shipping unlocked!</p>
+              )}
+
+              {/* Price breakdown */}
+              <div className="space-y-1.5 mb-4">
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>Subtotal</span>
+                  <span>${cartTotal.toFixed(2)}</span>
+                </div>
+                {bundleDiscount && (
+                  <div className="flex justify-between text-sm text-green-600 font-bold">
+                    <span>Bundle Discount (10%)</span>
+                    <span>-${discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>Shipping</span>
+                  <span>{shipping === 0 ? <span className="text-green-600 font-bold">Free</span> : `$${shipping.toFixed(2)}`}</span>
+                </div>
+                <div className="flex justify-between text-base font-black text-black pt-1 border-t border-gray-100">
+                  <span>Total</span>
+                  <span>${grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {checkoutError && (
+                <p className="text-red-500 text-xs text-center mb-3">
+                  Something went wrong. If an item is no longer available, remove it and try again.
+                </p>
+              )}
+
+              <button
+                onClick={handleCheckout}
+                disabled={checkingOut}
+                className="block w-full bg-yellow-400 text-black text-center font-black text-base py-3.5 rounded-full hover:bg-yellow-300 transition-colors uppercase tracking-wide disabled:opacity-60 disabled:cursor-not-allowed mb-3"
+              >
+                {checkingOut ? "Redirecting..." : "Checkout"}
+              </button>
+
+              <button
+                onClick={closeDrawer}
+                className="block w-full border-2 border-gray-200 text-gray-600 text-center font-bold text-sm py-2.5 rounded-full hover:border-black hover:text-black transition-colors"
+              >
+                Continue Shopping
+              </button>
             </div>
-
-            {checkoutError && (
-              <p className="text-red-500 text-xs text-center mb-3">
-                Something went wrong. If an item is no longer available, remove it and try again.
-              </p>
-            )}
-
-            <button
-              onClick={handleCheckout}
-              disabled={checkingOut}
-              className="block w-full bg-yellow-400 text-black text-center font-black text-base py-3.5 rounded-full hover:bg-yellow-300 transition-colors uppercase tracking-wide disabled:opacity-60 disabled:cursor-not-allowed mb-3"
-            >
-              {checkingOut ? "Redirecting..." : "Checkout"}
-            </button>
-
-            <button
-              onClick={closeDrawer}
-              className="block w-full border-2 border-gray-200 text-gray-600 text-center font-bold text-sm py-2.5 rounded-full hover:border-black hover:text-black transition-colors"
-            >
-              Continue Shopping
-            </button>
-
-            <p className="text-center text-xs text-gray-400 mt-3">Shipping calculated at checkout</p>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </>
   );

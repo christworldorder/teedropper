@@ -36,6 +36,10 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-gray-50 min-h-screen">
         <CartProvider>
+          {/* Promo announcement bar */}
+          <div className="bg-yellow-400 text-black text-xs sm:text-sm font-black uppercase tracking-widest text-center py-2.5 px-4">
+            🔥 Buy 2+ Save 10%&nbsp;&nbsp;·&nbsp;&nbsp;Free Shipping Over $100&nbsp;&nbsp;·&nbsp;&nbsp;Ships in 3–7 Days
+          </div>
           <Navbar />
           <main>{children}</main>
           <footer className="bg-black text-white py-10 mt-20 text-sm text-white/50">

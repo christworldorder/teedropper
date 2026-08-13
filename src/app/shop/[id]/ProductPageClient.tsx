@@ -8,7 +8,7 @@ import { useCart } from "@/context/CartContext";
 
 export default function ProductPageClient({ id }: { id: string }) {
   const router = useRouter();
-  const { addToCart, openDrawer } = useCart();
+  const { addToCart, openDrawer, items } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [beltSiblings, setBeltSiblings] = useState<Product[]>([]);
@@ -116,14 +116,37 @@ export default function ProductPageClient({ id }: { id: string }) {
     const variantId = getVariantId();
     if (!variantId) return;
 
+    const image = (selectedColor && product.colorImages?.[selectedColor]) || product.image || "";
+
     setBuying(true);
     setCheckoutError(false);
 
     try {
+      // If cart already has items, add this item and checkout everything together
+      const lineKey = `${id}|${selectedColor ?? ""}|${selectedSize}`;
+      const alreadyInCart = items.find((i) => `${i.productId}|${i.color ?? ""}|${i.size}` === lineKey);
+
+      let checkoutBody: object;
+
+      if (items.length > 0) {
+        // Add this item to cart so it's saved
+        addToCart({ productId: id, name: product.name, image, price: product.price, color: selectedColor || undefined, size: selectedSize, variantId });
+        // Build merged items list for checkout
+        const cartItems = alreadyInCart
+          ? items.map((i) => `${i.productId}|${i.color ?? ""}|${i.size}` === lineKey
+              ? { productId: i.productId, color: i.color, size: i.size, quantity: i.quantity + 1 }
+              : { productId: i.productId, color: i.color, size: i.size, quantity: i.quantity })
+          : [...items.map((i) => ({ productId: i.productId, color: i.color, size: i.size, quantity: i.quantity })),
+             { productId: id, color: selectedColor || undefined, size: selectedSize, quantity: 1 }];
+        checkoutBody = { items: cartItems };
+      } else {
+        checkoutBody = { productId: id, color: selectedColor || undefined, size: selectedSize };
+      }
+
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: id, color: selectedColor || undefined, size: selectedSize }),
+        body: JSON.stringify(checkoutBody),
       });
       const data = await res.json();
       if (data.url) {
