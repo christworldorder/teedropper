@@ -10,6 +10,7 @@ const SECTIONS: { key: ProductCategory; label: string; cover?: string }[] = [
   { key: "rashguard-mens", label: "Men's Rash Guards" },
   { key: "rashguard-womens", label: "Women's Rash Guards", cover: "/rashguard-cheetah.jpg" },
   { key: "hoodies", label: "Hoodies / Sweatshirts" },
+  { key: "kids", label: "Kids" },
 ];
 
 export default function Home() {
