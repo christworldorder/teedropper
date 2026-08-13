@@ -4,11 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { Product, ProductCategory } from "@/lib/products";
 
-const SECTIONS: { key: ProductCategory; label: string }[] = [
-  { key: "mens", label: "Men's Shirts" },
+const SECTIONS: { key: ProductCategory; label: string; cover?: string }[] = [
+  { key: "mens", label: "Men's Shirts", cover: "/grappling-club.png" },
   { key: "womens", label: "Women's Shirts" },
   { key: "rashguard-mens", label: "Men's Rash Guards" },
-  { key: "rashguard-womens", label: "Women's Rash Guards" },
+  { key: "rashguard-womens", label: "Women's Rash Guards", cover: "/rashguard-cheetah.jpg" },
 ];
 
 export default function Home() {
@@ -20,24 +20,24 @@ export default function Home() {
       .then(setProducts);
   }, []);
 
-  const tiles = SECTIONS.map(({ key, label }) => {
+  const tiles = SECTIONS.map(({ key, label, cover: staticCover }) => {
     const sectionProducts = products.filter((p) => (p.category ?? "mens") === key);
-    const cover = sectionProducts.find((p) => p.image) ?? null;
-    return { key, label, cover, count: sectionProducts.length };
+    const coverImage = staticCover ?? sectionProducts.find((p) => p.image)?.image ?? null;
+    return { key, label, coverImage, count: sectionProducts.length };
   }).filter((t) => t.count > 0);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="grid grid-cols-2 gap-4 sm:gap-6">
-        {tiles.map(({ key, label, cover }) => (
+        {tiles.map(({ key, label, coverImage }) => (
           <Link
             key={key}
             href={`/category/${key}`}
             className="group relative aspect-square rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 bg-gray-900"
           >
-            {cover?.image && (
+            {coverImage && (
               <Image
-                src={cover.image}
+                src={coverImage}
                 alt={label}
                 fill
                 sizes="(max-width: 640px) 50vw, 480px"
