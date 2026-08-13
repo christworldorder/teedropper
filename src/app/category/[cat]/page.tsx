@@ -12,6 +12,7 @@ const LABELS: Record<ProductCategory, string> = {
   "rashguard-womens": "Women's Rash Guards",
   hoodies: "Hoodies / Sweatshirts",
   kids: "Kids",
+  flags: "Flags",
 };
 
 export default function CategoryPage() {

@@ -1,4 +1,4 @@
-export type ProductCategory = "mens" | "womens" | "rashguard-mens" | "rashguard-womens" | "hoodies" | "kids";
+export type ProductCategory = "mens" | "womens" | "rashguard-mens" | "rashguard-womens" | "hoodies" | "kids" | "flags";
 
 export type Product = {
   id: string;
