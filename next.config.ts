@@ -30,6 +30,8 @@ const nextConfig: NextConfig = {
 };
 
 export default withSentryConfig(nextConfig, {
+  org: "teedropper",
+  project: "javascript-nextjs",
   silent: true,
   telemetry: false,
 });
