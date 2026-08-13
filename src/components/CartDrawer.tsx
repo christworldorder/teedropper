@@ -50,7 +50,7 @@ export default function CartDrawer() {
       const data = await res.json();
       if (data.url) {
         // Don't clear cart here — clear it on the thank-you page after confirmed payment
-        window.location.href = data.url;
+        window.location.replace(data.url);
       } else if (data.error?.includes("Variant not available") || data.error?.includes("not found")) {
         setCheckoutError(true);
         setCheckingOut(false);

@@ -127,7 +127,7 @@ export default function ProductPageClient({ id }: { id: string }) {
       });
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url;
+        window.location.replace(data.url);
       } else {
         setCheckoutError(true);
         setBuying(false);
@@ -158,7 +158,7 @@ export default function ProductPageClient({ id }: { id: string }) {
     <div className="max-w-5xl mx-auto px-4 py-12">
       <button
         onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/"}
-        className="text-sm font-bold text-gray-500 hover:text-black mb-8 inline-block"
+        className="text-sm font-bold text-gray-800 underline underline-offset-2 mb-8 inline-block"
       >
         &larr; Back
       </button>
