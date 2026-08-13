@@ -33,6 +33,9 @@ export default function ProductPageClient({ id }: { id: string }) {
         if (data) {
           const cols = getColors(data.variants || {});
           if (cols.length === 1) setSelectedColor(cols[0]);
+          // Auto-select size if only one option (e.g. flags)
+          const singleKeys = Object.keys(data.variants || {}).filter(k => !k.includes("-"));
+          if (singleKeys.length === 1) setSelectedSize(singleKeys[0]);
         }
         if (data?.name.toUpperCase().includes("IGBBMN")) {
           fetch("/api/products")
@@ -247,7 +250,15 @@ export default function ProductPageClient({ id }: { id: string }) {
             </div>
           )}
 
-          {(availableSizes.length > 0) && (
+          {product.category === "flags" && (
+            <div className="mb-6 bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-700">
+              <p className="font-black uppercase tracking-wide text-black mb-1">Flag Dimensions</p>
+              <p>3 × 5 ft &nbsp;(90 × 150 cm)</p>
+              <p className="text-gray-500 text-xs mt-1">Printed on durable polyester. Grommets included.</p>
+            </div>
+          )}
+
+          {(availableSizes.length > 1) && (
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-bold uppercase tracking-wide">
