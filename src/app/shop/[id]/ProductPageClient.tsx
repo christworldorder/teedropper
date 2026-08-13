@@ -156,12 +156,12 @@ export default function ProductPageClient({ id }: { id: string }) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
-      <button
-        onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/"}
+      <a
+        href="/"
         className="text-sm font-bold text-gray-800 underline underline-offset-2 mb-8 inline-block"
       >
         &larr; Back
-      </button>
+      </a>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         <div
           className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-square cursor-zoom-in"
