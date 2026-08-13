@@ -130,6 +130,16 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       console.error("Printful order failed:", data);
+      // Log failed order so it can be manually fulfilled
+      await eventRef.set({
+        processedAt: Date.now(),
+        printfulOrderId: null,
+        printfulError: JSON.stringify(data),
+        customerEmail: email,
+        customerName,
+        items: printfulItems.map((i) => ({ variantId: i.sync_variant_id, quantity: i.quantity })),
+        status: "printful_failed",
+      });
       return NextResponse.json({ error: "Printful order failed", details: data }, { status: 500 });
     }
 

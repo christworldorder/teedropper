@@ -83,8 +83,8 @@ export async function POST(req: NextRequest) {
         printful_variant_ids: JSON.stringify(printfulVariants),
         product_id: incomingItems.map((i) => i.productId).join(","),
       },
-      success_url: `${origin}/thank-you`,
-      cancel_url: `${origin}/shop/${cancelProductId}`,
+      success_url: `${origin}/thank-you?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/`,
     });
 
     return NextResponse.json({ url: session.url });
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
       color: color || "",
       size,
     },
-    success_url: `${origin}/thank-you`,
+    success_url: `${origin}/thank-you?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/shop/${productId}`,
   });
 

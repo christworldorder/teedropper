@@ -153,9 +153,12 @@ export default function ProductPageClient({ id }: { id: string }) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
-      <Link href="/" className="text-sm font-bold text-gray-500 hover:text-black mb-8 inline-block">
-        &larr; Back to Shop
-      </Link>
+      <button
+        onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/"}
+        className="text-sm font-bold text-gray-500 hover:text-black mb-8 inline-block"
+      >
+        &larr; Back
+      </button>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         <div
           className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-square cursor-zoom-in"

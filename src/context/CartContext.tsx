@@ -28,6 +28,7 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | null>(null);
 
 const STORAGE_KEY = "teedropper_cart";
+const MAX_QTY = 25;
 
 function itemKey(productId: string, color: string | undefined, size: string) {
   return `${productId}|${color ?? ""}|${size}`;
@@ -69,11 +70,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existing) {
         return prev.map((i) =>
           itemKey(i.productId, i.color, i.size) === key
-            ? { ...i, quantity: i.quantity + qty }
+            ? { ...i, quantity: Math.min(i.quantity + qty, MAX_QTY) }
             : i
         );
       }
-      return [...prev, { ...incoming, quantity: qty }];
+      return [...prev, { ...incoming, quantity: Math.min(qty, MAX_QTY) }];
     });
   }, []);
 
@@ -89,7 +90,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } else {
       setItems((prev) =>
         prev.map((i) =>
-          itemKey(i.productId, i.color, i.size) === key ? { ...i, quantity } : i
+          itemKey(i.productId, i.color, i.size) === key ? { ...i, quantity: Math.min(quantity, MAX_QTY) } : i
         )
       );
     }

@@ -49,8 +49,11 @@ export default function CartDrawer() {
       });
       const data = await res.json();
       if (data.url) {
-        clearCart();
+        // Don't clear cart here — clear it on the thank-you page after confirmed payment
         router.push(data.url);
+      } else if (data.error?.includes("Variant not available") || data.error?.includes("not found")) {
+        setCheckoutError(true);
+        setCheckingOut(false);
       } else {
         setCheckoutError(true);
         setCheckingOut(false);
@@ -175,7 +178,9 @@ export default function CartDrawer() {
             </div>
 
             {checkoutError && (
-              <p className="text-red-500 text-xs text-center mb-3">Something went wrong. Please try again.</p>
+              <p className="text-red-500 text-xs text-center mb-3">
+                Something went wrong. If an item is no longer available, remove it and try again.
+              </p>
             )}
 
             <button
