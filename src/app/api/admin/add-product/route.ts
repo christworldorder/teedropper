@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { name, description, price, tag, image, variants } = product;
+  const { name, description, price, tag, image, variants, category } = product;
 
   if (!name || !price || !variants || Object.keys(variants).length === 0) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
     tag: tag || "New Drop",
     image: image || "",
     variants,
+    ...(category ? { category } : {}),
     createdAt: Date.now(),
   });
 
