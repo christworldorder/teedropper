@@ -34,4 +34,5 @@ export default withSentryConfig(nextConfig, {
   project: "javascript-nextjs",
   silent: true,
   telemetry: false,
+  tunnelRoute: "/monitoring",
 });
