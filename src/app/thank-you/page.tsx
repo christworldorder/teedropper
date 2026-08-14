@@ -7,7 +7,9 @@ export default function ThankYouPage() {
   const { clearCart } = useCart();
 
   // Clear cart once we land here — payment is confirmed
+  // Also wipe localStorage directly so CartProvider's hydration effect doesn't re-populate it
   useEffect(() => {
+    try { localStorage.removeItem("teedropper_cart"); } catch {}
     clearCart();
   }, [clearCart]);
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { Resend } from "resend";
 import { getAdminDb } from "@/lib/firebase-admin";
 
 export async function POST(req: NextRequest) {
@@ -145,6 +146,42 @@ export async function POST(req: NextRequest) {
 
     const printfulOrderId = data.result?.id;
     console.log("Printful order created and confirmed:", printfulOrderId);
+
+    // Send confirmation email to customer
+    if (email) {
+      try {
+        const resend = new Resend(process.env.RESEND_API_KEY!);
+        const itemList = printfulItems
+          .map((item, idx) => {
+            const lineItemsData = (session.line_items as Stripe.ApiList<Stripe.LineItem> | undefined)?.data ?? [];
+            const name = lineItemsData[idx]?.description || `Item ${idx + 1}`;
+            return `<li style="margin-bottom:4px;">${name} × ${item.quantity}</li>`;
+          })
+          .join("");
+
+        await resend.emails.send({
+          from: "TeeDropper <support@nevermissed.app>",
+          to: email,
+          subject: "Your TeeDropper order is confirmed!",
+          html: `
+            <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+              <h1 style="font-size:24px;font-weight:900;margin-bottom:4px;">Order Confirmed!</h1>
+              <p style="color:#555;margin-top:0;">Hey ${customerName.split(" ")[0]}, thanks for your order. We're getting it printed now.</p>
+              <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+              <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;">What you ordered</h2>
+              <ul style="padding-left:20px;color:#333;">${itemList}</ul>
+              <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+              <p style="color:#555;font-size:14px;">Your gear ships in <strong>3–7 business days</strong>. You'll get a separate email with tracking once it's on its way.</p>
+              <p style="color:#555;font-size:14px;">Questions? Hit us at <a href="https://teedropper.com/support" style="color:#000;">teedropper.com/support</a></p>
+              <p style="font-size:12px;color:#aaa;margin-top:32px;">TeeDropper — teedropper.com</p>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error("Confirmation email failed:", emailErr);
+        // Don't fail the webhook over an email error
+      }
+    }
 
     // Log order to Firestore
     await eventRef.set({
