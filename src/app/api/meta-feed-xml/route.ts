@@ -72,7 +72,7 @@ export async function GET() {
       <g:link>${esc(productUrl)}</g:link>
       <g:image_link>${esc(imageUrl)}</g:image_link>
       <g:availability>in stock</g:availability>
-      <g:quantity>999</g:quantity>
+      <g:quantity_to_sell_on_facebook>999</g:quantity_to_sell_on_facebook>
       <g:condition>new</g:condition>
       <g:price>${price}</g:price>
       <g:brand>TeeDropper</g:brand>
