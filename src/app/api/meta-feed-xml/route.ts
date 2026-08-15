@@ -60,9 +60,13 @@ export async function GET() {
 
       // For color variants (e.g. "Black-XL"), extract color and fall back to main product image
       const colorMatch = size.match(/^(.+)-([^-]+)$/);
-      const imageUrl = colorMatch && p.colorImages?.[colorMatch[1]]
+      let imageUrl = colorMatch && p.colorImages?.[colorMatch[1]]
         ? p.colorImages[colorMatch[1]]
         : p.image || "";
+      // Ensure image URL is absolute
+      if (imageUrl && imageUrl.startsWith("/")) {
+        imageUrl = `https://www.teedropper.com${imageUrl}`;
+      }
       const displaySize = colorMatch ? colorMatch[2] : size;
 
       itemLines.push(`    <item>
