@@ -58,19 +58,27 @@ export async function GET() {
         ? esc(p.name)
         : `${esc(p.name)} - ${esc(size)}`;
 
+      // For color variants (e.g. "Black-XL"), extract color and fall back to main product image
+      const colorMatch = size.match(/^(.+)-([^-]+)$/);
+      const imageUrl = colorMatch && p.colorImages?.[colorMatch[1]]
+        ? p.colorImages[colorMatch[1]]
+        : p.image || "";
+      const displaySize = colorMatch ? colorMatch[2] : size;
+
       itemLines.push(`    <item>
       <g:id>${esc(itemId)}</g:id>
       <g:title>${title}</g:title>
       <g:description>${esc(p.description || p.name)}</g:description>
       <g:link>${esc(productUrl)}</g:link>
-      <g:image_link>${esc(p.image || "")}</g:image_link>
+      <g:image_link>${esc(imageUrl)}</g:image_link>
       <g:availability>in stock</g:availability>
+      <g:quantity>999</g:quantity>
       <g:condition>new</g:condition>
       <g:price>${price}</g:price>
       <g:brand>TeeDropper</g:brand>
       <g:google_product_category>${googleCategory}</g:google_product_category>
       <g:item_group_id>${esc(productId)}</g:item_group_id>
-      <g:size>${esc(size)}</g:size>
+      <g:size>${esc(displaySize)}</g:size>
       <g:gender>${gender}</g:gender>
       <g:age_group>${ageGroup}</g:age_group>
     </item>`);
