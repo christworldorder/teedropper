@@ -11,7 +11,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="bg-black text-white sticky top-0 z-50">
+      <nav className="bg-[#1e2a14] text-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
             <Image src="/logo.png" alt="TeeDropper" width={120} height={120} className="rounded-full" />

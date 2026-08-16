@@ -50,15 +50,15 @@ export default function RootLayout({
         `}} />
         <noscript dangerouslySetInnerHTML={{ __html: `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=946085798523529&ev=PageView&noscript=1"/>` }} />
       </head>
-      <body className="bg-gray-50 min-h-screen">
+      <body className="bg-[#f0ede6] min-h-screen">
         <CartProvider>
           {/* Promo announcement bar */}
-          <div className="bg-yellow-400 text-black text-xs sm:text-sm font-black uppercase tracking-widest text-center py-2.5 px-4">
+          <div className="bg-[#4a5c28] text-white text-xs sm:text-sm font-black uppercase tracking-widest text-center py-2.5 px-4">
             🔥 Buy 2+ Save 10%&nbsp;&nbsp;·&nbsp;&nbsp;Free Shipping Over $100&nbsp;&nbsp;·&nbsp;&nbsp;Ships in 3–7 Days
           </div>
           <Navbar />
           <main>{children}</main>
-          <footer className="bg-black text-white py-10 mt-20 text-sm text-white/50">
+          <footer className="bg-[#1e2a14] text-white py-10 mt-20 text-sm text-white/50">
             <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
               <span>© {new Date().getFullYear()} TeeDropper. All rights reserved.</span>
               <div className="flex gap-6">
