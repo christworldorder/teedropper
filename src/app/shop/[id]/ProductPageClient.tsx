@@ -129,13 +129,13 @@ export default function ProductPageClient({ id }: { id: string }) {
       let checkoutBody: object;
 
       if (items.length > 0) {
-        // Add this item to cart so it's saved
-        addToCart({ productId: id, name: product.name, image, price: product.price, color: selectedColor || undefined, size: selectedSize, variantId });
-        // Build merged items list for checkout
+        // Only add to cart if not already in cart
+        if (!alreadyInCart) {
+          addToCart({ productId: id, name: product.name, image, price: product.price, color: selectedColor || undefined, size: selectedSize, variantId });
+        }
+        // Build merged items list for checkout (don't double-count already-carted items)
         const cartItems = alreadyInCart
-          ? items.map((i) => `${i.productId}|${i.color ?? ""}|${i.size}` === lineKey
-              ? { productId: i.productId, color: i.color, size: i.size, quantity: i.quantity + 1 }
-              : { productId: i.productId, color: i.color, size: i.size, quantity: i.quantity })
+          ? items.map((i) => ({ productId: i.productId, color: i.color, size: i.size, quantity: i.quantity }))
           : [...items.map((i) => ({ productId: i.productId, color: i.color, size: i.size, quantity: i.quantity })),
              { productId: id, color: selectedColor || undefined, size: selectedSize, quantity: 1 }];
         checkoutBody = { items: cartItems };
