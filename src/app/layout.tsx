@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { CartProvider } from "@/context/CartContext";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: "TeeDropper - Trending Tees Dropped Daily",
@@ -70,6 +71,7 @@ export default function RootLayout({
             </div>
           </footer>
         </CartProvider>
+        <Analytics />
       </body>
     </html>
   );
