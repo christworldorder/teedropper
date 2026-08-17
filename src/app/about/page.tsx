@@ -13,7 +13,7 @@ export default function AboutPage() {
       <div className="space-y-6 text-gray-700 leading-relaxed">
         <p>
           TeeDropper was built for people who train hard and stand for something. Our gear is made for the BJJ mat,
-          the MMA cage, the weight room, and everyday life — wherever you carry yourself with purpose.
+          the MMA cage, the weight room, and everyday life. Wherever you carry yourself with purpose.
         </p>
 
         <p>
@@ -22,24 +22,25 @@ export default function AboutPage() {
         </p>
 
         <p>
-          We carry men&apos;s and women&apos;s tees, rash guards, hoodies, kids gear, and flags — covering everything
-          from combat sports to faith to fitness. If it matters to the people we make it for, we make it.
+          We carry men&apos;s and women&apos;s tees, rash guards, hoodies, kids gear, and flags. Combat sports,
+          faith, fitness. If it matters to the people we make it for, we make it.
         </p>
 
         <p>
-          Ships in 3-7 business days. Every order is backed by our satisfaction guarantee — if something arrives
+          Ships in 3-7 business days. Every order is backed by our satisfaction guarantee. If something arrives
           defective or wrong, we make it right.
         </p>
       </div>
 
       <div className="mt-12 p-6 bg-[#1e2a14] text-white rounded-xl">
         <h2 className="font-black uppercase tracking-wide text-lg mb-2">Questions?</h2>
-        <p className="text-white/70 text-sm mb-3">We respond within 1-2 business days.</p>
+        <p className="text-white/70 text-sm mb-4">We respond within 1-2 business days.</p>
+        <p className="text-white font-bold mb-4">teedropper@proton.me</p>
         <a
-          href="mailto:teedropper@proton.me"
+          href="/support"
           className="inline-block bg-yellow-400 text-black font-black uppercase text-sm tracking-wide px-5 py-2.5 rounded hover:bg-yellow-300 transition-colors"
         >
-          teedropper@proton.me
+          Submit a Support Request
         </a>
       </div>
     </div>
