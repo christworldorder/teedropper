@@ -10,6 +10,8 @@ export type Product = {
   category?: ProductCategory;
   variants: Record<string, string>; // "Black-XS": "id" OR legacy "XS": "id"
   colorImages?: Record<string, string>; // { Black: "url", Charcoal: "url" }
+  color?: string;
+  material?: string;
   createdAt?: number;
 };
 
