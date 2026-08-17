@@ -27,6 +27,7 @@ export default function ProductPageClient({ id }: { id: string }) {
   const [sizeChart, setSizeChart] = useState(false);
   const [measurements, setMeasurements] = useState<{ type_label: string; values: { size: string; value?: string; min_value?: string; max_value?: string }[] }[] | null>(null);
   const [addedToast, setAddedToast] = useState(false);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -209,7 +210,8 @@ export default function ProductPageClient({ id }: { id: string }) {
         ...singleKeys.filter((k) => !SIZES_SET.has(k)),
       ];
 
-  const displayImage = (selectedColor && product.colorImages?.[selectedColor]) || product.image;
+  const colorImage = (selectedColor && product.colorImages?.[selectedColor]) || product.image;
+  const displayImage = activeImage ?? colorImage;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
@@ -220,23 +222,45 @@ export default function ProductPageClient({ id }: { id: string }) {
         &larr; Back
       </a>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div
-          className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-square cursor-zoom-in"
-          onClick={() => displayImage && setLightbox(true)}
-        >
-          {displayImage ? (
-            <Image src={displayImage} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-contain" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-8xl text-gray-300">👕</div>
-          )}
-          <span className="absolute top-4 left-4 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
-            {product.tag}
-          </span>
-          {displayImage && (
-            <span className="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">
-              Tap to zoom
+        <div className="flex flex-col gap-3">
+          <div
+            className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-square cursor-zoom-in"
+            onClick={() => displayImage && setLightbox(true)}
+          >
+            {displayImage ? (
+              <Image src={displayImage} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-contain" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-8xl text-gray-300">👕</div>
+            )}
+            <span className="absolute top-4 left-4 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+              {product.tag}
             </span>
-          )}
+            {displayImage && (
+              <span className="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">
+                Tap to zoom
+              </span>
+            )}
+          </div>
+
+          {/* Thumbnail strip */}
+          {product.additionalImages && product.additionalImages.length > 0 && (() => {
+            const thumbs = [colorImage, ...product.additionalImages!].filter(Boolean) as string[];
+            return (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {thumbs.map((src, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImage(src === colorImage && i === 0 ? null : src)}
+                    className={`relative shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                      displayImage === src ? "border-black" : "border-gray-200 hover:border-gray-400"
+                    }`}
+                  >
+                    <Image src={src} alt={`${product.name} view ${i + 1}`} fill sizes="64px" className="object-cover" />
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
         </div>
 
         {lightbox && displayImage && (
@@ -295,7 +319,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                 {colors.map((color) => (
                   <button
                     key={color}
-                    onClick={() => { setSelectedColor(color); setSelectedSize(""); setColorError(false); }}
+                    onClick={() => { setSelectedColor(color); setSelectedSize(""); setColorError(false); setActiveImage(null); }}
                     className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-colors ${
                       selectedColor === color ? "bg-black text-white border-black" : "border-gray-300 text-gray-700 hover:border-black"
                     }`}

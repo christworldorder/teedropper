@@ -12,6 +12,7 @@ export type Product = {
   colorImages?: Record<string, string>; // { Black: "url", Charcoal: "url" }
   color?: string;
   material?: string;
+  additionalImages?: string[];
   createdAt?: number;
 };
 

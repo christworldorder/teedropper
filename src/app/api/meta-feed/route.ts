@@ -72,6 +72,8 @@ export async function GET() {
 
     const hasColorInKey = variantKeys.some((k) => k.includes("-"));
 
+    const additionalImages: string[] = Array.isArray(p.additionalImages) ? p.additionalImages : [];
+
     if (isFlag) {
       items.push({
         id: `${docId}-one-size`,
@@ -87,6 +89,7 @@ export async function GET() {
         product_type: productType,
         ...(p.color && { color: p.color }),
         ...(p.material && { material: p.material }),
+        ...(additionalImages[0] && { additional_image_link: additionalImages[0] }),
         item_group_id: docId,
         custom_label_0: niche,
         mpn: variants[variantKeys[0]] || "",
@@ -119,6 +122,7 @@ export async function GET() {
           color,
           size,
           ...(p.material && { material: p.material }),
+          ...(additionalImages[0] && { additional_image_link: additionalImages[0] }),
           item_group_id: docId,
           custom_label_0: niche,
           mpn: variants[key],
@@ -148,6 +152,7 @@ export async function GET() {
           color,
           size,
           ...(p.material && { material: p.material }),
+          ...(additionalImages[0] && { additional_image_link: additionalImages[0] }),
           item_group_id: docId,
           custom_label_0: niche,
           mpn: variants[size],
