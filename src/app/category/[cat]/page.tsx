@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 import { getAdminDb } from "@/lib/firebase-admin";
 import ProductCard from "@/components/ProductCard";
 import { Product, ProductCategory } from "@/lib/products";
@@ -19,10 +21,10 @@ async function getProductsByCategory(cat: string): Promise<Product[]> {
     const db = getAdminDb();
     const snap = await db
       .collection("teedropper_products")
-      .where("category", "==", cat)
       .orderBy("createdAt", "desc")
       .get();
-    return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Product));
+    const all = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Product));
+    return all.filter((p) => (p.category ?? "mens") === cat);
   } catch {
     return [];
   }
