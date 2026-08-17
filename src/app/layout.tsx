@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   openGraph: {
-    title: "TeeDropper — Viral Tees. Right Now.",
+    title: "TeeDropper: Viral Tees. Right Now.",
     description: "The shirts blowing up online. New drops every week. Ships in 3-7 days.",
     url: "https://teedropper.com",
     siteName: "TeeDropper",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TeeDropper — Viral Tees. Right Now.",
+    title: "TeeDropper: Viral Tees. Right Now.",
     description: "The shirts blowing up online. New drops every week.",
     images: ["https://teedropper.com/og-default.jpg"],
   },
