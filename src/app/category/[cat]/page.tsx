@@ -54,20 +54,26 @@ export default async function CategoryPage({
 
   const schema = {
     "@context": "https://schema.org",
-    "@type": "CollectionPage",
+    "@type": "ItemList",
     name: `${label} — TeeDropper`,
     description: `Shop ${label} at TeeDropper.`,
     url: `https://www.teedropper.com/category/${cat}`,
-    hasPart: products.map((p) => ({
-      "@type": "Product",
-      name: p.name,
-      image: p.image,
-      offers: {
-        "@type": "Offer",
-        price: p.price,
-        priceCurrency: "USD",
-        availability: "https://schema.org/InStock",
+    itemListElement: products.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `https://www.teedropper.com/shop/${p.id}`,
+      item: {
+        "@type": "Product",
+        name: p.name,
+        image: p.image,
+        sku: p.id,
         url: `https://www.teedropper.com/shop/${p.id}`,
+        offers: {
+          "@type": "Offer",
+          price: p.price,
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+        },
       },
     })),
   };
