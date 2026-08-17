@@ -64,8 +64,12 @@ export default function RootLayout({
           <main>{children}</main>
           <footer className="bg-[#1e2a14] text-white py-10 mt-20 text-sm text-white/50">
             <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span>© {new Date().getFullYear()} TeeDropper. All rights reserved.</span>
+              <div className="flex flex-col items-center sm:items-start gap-1">
+                <span>© {new Date().getFullYear()} TeeDropper. All rights reserved.</span>
+                <a href="mailto:teedropper@proton.me" className="hover:text-white transition-colors">teedropper@proton.me</a>
+              </div>
               <div className="flex gap-6">
+                <a href="/about" className="hover:text-white transition-colors">About</a>
                 <a href="/support" className="hover:text-white transition-colors">Support</a>
                 <a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a>
                 <a href="/terms" className="hover:text-white transition-colors">Terms</a>
