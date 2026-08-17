@@ -3,6 +3,8 @@ import { getAdminDb } from "@/lib/firebase-admin";
 import { Product } from "@/lib/products";
 import ProductPageClient from "./ProductPageClient";
 
+export const dynamic = "force-dynamic";
+
 async function getProduct(id: string): Promise<Product | null> {
   try {
     const db = getAdminDb();
