@@ -18,7 +18,7 @@ export default function Returns() {
 
         <section>
           <h2 className="text-xl font-black uppercase tracking-tight text-yellow-400 mb-3">Wrong Size</h2>
-          <p>We will reprint in your size at 50% off — and you keep the original. No return shipping needed. Email us within 14 days of delivery with your order number and the size you need. Check the measurements on each product page before ordering and you probably won&apos;t need this.</p>
+          <p>We will reprint in your size at our cost — and you keep the original. No return shipping needed. Email us within 14 days of delivery with your order number and the size you need and we will send you a payment link. Check the measurements on each product page before ordering and you probably won&apos;t need this.</p>
         </section>
 
         <section>
