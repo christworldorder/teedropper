@@ -25,8 +25,10 @@ const GENDER_MAP: Record<string, string> = {
 
 function esc(str: string): string {
   return str
-    .replace(/[\u0080-\u009F\uFFFD]/g, "") // strip mangled encoding chars
-    .replace(/\u2013|\u2014/g, "-")          // normalize em/en dashes
+    // Fix garbled UTF-8 read as Latin-1: â€" → -, â€™ → ', â€˜ → '
+    .replace(/\u00e2\u20ac[\u0090-\u009f\u2018\u2019\u201c\u201d]/g, "-")
+    .replace(/[\u0080-\u009F\uFFFD]/g, "")
+    .replace(/\u2013|\u2014/g, "-")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")

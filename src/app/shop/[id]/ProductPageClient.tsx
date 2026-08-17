@@ -29,6 +29,16 @@ export default function ProductPageClient({ id }: { id: string }) {
       .then((data: Product | null) => {
         setProduct(data);
         setLoading(false);
+        // ViewContent — group level since no size selected yet
+        if (data && typeof window !== "undefined" && (window as unknown as {fbq?: Function}).fbq) {
+          (window as unknown as {fbq: Function}).fbq("track", "ViewContent", {
+            content_ids: [id],
+            content_type: "product_group",
+            content_name: data.name,
+            value: data.price,
+            currency: "USD",
+          });
+        }
         // Auto-select color if only one option
         if (data) {
           const cols = getColors(data.variants || {});
@@ -81,6 +91,20 @@ export default function ProductPageClient({ id }: { id: string }) {
       size: selectedSize,
       variantId,
     });
+
+    // AddToCart pixel event — ID matches feed format
+    const feedItemId = selectedColor
+      ? `${id}_${selectedColor}-${selectedSize}`
+      : `${id}_${selectedSize}`;
+    if (typeof window !== "undefined" && (window as unknown as {fbq?: Function}).fbq) {
+      (window as unknown as {fbq: Function}).fbq("track", "AddToCart", {
+        content_ids: [feedItemId],
+        content_type: "product",
+        content_name: product.name,
+        value: product.price,
+        currency: "USD",
+      });
+    }
 
     // Show brief "Added!" toast
     setAddedToast(true);

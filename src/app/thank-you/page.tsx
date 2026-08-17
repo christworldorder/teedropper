@@ -4,14 +4,27 @@ import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
 export default function ThankYouPage() {
-  const { clearCart } = useCart();
+  const { clearCart, items } = useCart();
 
-  // Clear cart once we land here — payment is confirmed
-  // Also wipe localStorage directly so CartProvider's hydration effect doesn't re-populate it
   useEffect(() => {
+    // Fire Purchase before clearing cart so Meta gets item IDs
+    if (typeof window !== "undefined" && (window as unknown as {fbq?: Function}).fbq && items.length > 0) {
+      const contentIds = items.map((i) =>
+        i.color ? `${i.productId}_${i.color}-${i.size}` : `${i.productId}_${i.size}`
+      );
+      const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+      (window as unknown as {fbq: Function}).fbq("track", "Purchase", {
+        content_ids: contentIds,
+        content_type: "product",
+        value: total,
+        currency: "USD",
+        num_items: items.reduce((sum, i) => sum + i.quantity, 0),
+      });
+    }
+
     try { localStorage.removeItem("teedropper_cart"); } catch {}
     clearCart();
-  }, [clearCart]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">
