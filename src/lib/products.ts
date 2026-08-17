@@ -26,7 +26,16 @@ export function getColors(variants: Record<string, string>): string[] {
 }
 
 export function getSizesForColor(variants: Record<string, string>, color: string): string[] {
-  return SIZES.filter((s) => variants[`${color}-${s}`]);
+  const prefix = `${color}-`;
+  const found = Object.keys(variants)
+    .filter((k) => k.startsWith(prefix))
+    .map((k) => k.slice(prefix.length));
+  // Sort standard sizes first in the right order, then any extras (numeric youth sizes, etc.)
+  const sizeOrder = SIZES as readonly string[];
+  return [
+    ...sizeOrder.filter((s) => found.includes(s)),
+    ...found.filter((s) => !sizeOrder.includes(s)).sort(),
+  ];
 }
 
 export function isColorVariant(variants: Record<string, string>): boolean {
