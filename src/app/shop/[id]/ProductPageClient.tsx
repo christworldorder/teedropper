@@ -1,13 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Product, getColors, getSizesForColor, isColorVariant, SIZES } from "@/lib/products";
-import { notFound, useRouter } from "next/navigation";
+import { notFound, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
+function slugId(s: string) {
+  return s.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
 export default function ProductPageClient({ id }: { id: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { addToCart, openDrawer, items } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,13 +44,20 @@ export default function ProductPageClient({ id }: { id: string }) {
             currency: "USD",
           });
         }
-        // Auto-select color if only one option
+        // Auto-select from URL params (?color=Black&size=L) or fall back to single-option logic
         if (data) {
+          const paramColor = searchParams.get("color");
+          const paramSize = searchParams.get("size");
           const cols = getColors(data.variants || {});
-          if (cols.length === 1) setSelectedColor(cols[0]);
-          // Auto-select size if only one option (e.g. flags)
+          const colorToSet = paramColor && cols.includes(paramColor) ? paramColor
+            : cols.length === 1 ? cols[0] : "";
+          if (colorToSet) setSelectedColor(colorToSet);
+
           const singleKeys = Object.keys(data.variants || {}).filter(k => !k.includes("-"));
-          if (singleKeys.length === 1) setSelectedSize(singleKeys[0]);
+          const sizeToSet = paramSize && data.variants?.[`${colorToSet}-${paramSize}`] ? paramSize
+            : paramSize && data.variants?.[paramSize] ? paramSize
+            : singleKeys.length === 1 ? singleKeys[0] : "";
+          if (sizeToSet) setSelectedSize(sizeToSet);
         }
         if (data?.name.toUpperCase().includes("IGBBMN")) {
           fetch("/api/products")
@@ -92,10 +104,8 @@ export default function ProductPageClient({ id }: { id: string }) {
       variantId,
     });
 
-    // AddToCart pixel event — ID matches feed format
-    const feedItemId = selectedColor
-      ? `${id}_${selectedColor}-${selectedSize}`
-      : `${id}_${selectedSize}`;
+    // AddToCart pixel event — ID matches feed format: docId-color-size
+    const feedItemId = `${id}-${slugId(selectedColor || "black")}-${slugId(selectedSize)}`;
     if (typeof window !== "undefined" && (window as unknown as {fbq?: Function}).fbq) {
       (window as unknown as {fbq: Function}).fbq("track", "AddToCart", {
         content_ids: [feedItemId],
