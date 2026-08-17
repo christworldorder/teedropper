@@ -26,6 +26,19 @@ async function getProducts(): Promise<Product[]> {
 export default async function Home() {
   const products = await getProducts();
 
+  const orgSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "TeeDropper",
+    url: "https://www.teedropper.com",
+    logo: "https://www.teedropper.com/logo.png",
+    contactPoint: {
+      "@type": "ContactPoint",
+      email: "teedropper@proton.me",
+      contactType: "customer support",
+    },
+  };
+
   const tiles = SECTIONS.map(({ key, label, cover: staticCover }) => {
     const sectionProducts = products.filter((p) => (p.category ?? "mens") === key);
     const coverImage = staticCover ?? sectionProducts.find((p) => p.image)?.image ?? null;
@@ -33,6 +46,11 @@ export default async function Home() {
   }).filter((t) => t.count > 0);
 
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+    />
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="grid grid-cols-2 gap-4 sm:gap-6">
         {tiles.map(({ key, label, coverImage }) => (
@@ -59,5 +77,6 @@ export default async function Home() {
         ))}
       </div>
     </div>
+    </>
   );
 }

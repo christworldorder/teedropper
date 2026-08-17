@@ -23,7 +23,7 @@ export async function GET() {
     const db = getAdminDb();
     const snap = await db.collection("teedropper_products").get();
     productUrls = snap.docs.map((doc) => ({
-      url: `/product/${doc.id}`,
+      url: `/shop/${doc.id}`,
       priority: "0.8",
       changefreq: "weekly",
     }));
