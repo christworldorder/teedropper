@@ -70,6 +70,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         sku: id,
         brand: { "@type": "Brand", name: "TeeDropper" },
         ...(sizes.length > 0 && { size: sizes }),
+        ...(product.color && { color: product.color }),
+        ...(product.material && { material: product.material }),
         offers: {
           "@type": "Offer",
           price: product.price,

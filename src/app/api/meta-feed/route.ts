@@ -2,61 +2,65 @@ import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-// Maps internal category slugs to Meta-friendly Google product categories
 const CATEGORY_MAP: Record<string, string> = {
-  mens: "Apparel & Accessories > Clothing > Shirts & Tops",
-  womens: "Apparel & Accessories > Clothing > Shirts & Tops",
-  hoodies: "Apparel & Accessories > Clothing > Outerwear",
+  mens:             "Apparel & Accessories > Clothing > Shirts & Tops",
+  womens:           "Apparel & Accessories > Clothing > Shirts & Tops",
+  hoodies:          "Apparel & Accessories > Clothing > Outerwear",
   "rashguard-mens": "Apparel & Accessories > Clothing > Activewear",
-  "rashguard-womens": "Apparel & Accessories > Clothing > Activewear",
-  kids: "Apparel & Accessories > Clothing > Baby & Toddler Clothing",
-  flags: "Home & Garden > Decor > Flags & Pennants",
+  "rashguard-womens":"Apparel & Accessories > Clothing > Activewear",
+  kids:             "Apparel & Accessories > Clothing > Baby & Toddler Clothing",
+  flags:            "Home & Garden > Decor > Flags & Pennants",
 };
 
 const GENDER_MAP: Record<string, string> = {
-  mens: "male",
-  womens: "female",
-  hoodies: "unisex",
+  mens:             "male",
+  womens:           "female",
+  hoodies:          "unisex",
   "rashguard-mens": "male",
-  "rashguard-womens": "female",
-  kids: "unisex",
-  flags: "unisex",
+  "rashguard-womens":"female",
+  kids:             "unisex",
+  flags:            "unisex",
 };
 
 const AGE_MAP: Record<string, string> = {
   kids: "kids",
 };
 
+function slug(s: string) {
+  return s.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
 export async function GET() {
   const db = getAdminDb();
   const snap = await db.collection("teedropper_products").get();
 
-  const items: Record<string, string>[] = [];
+  const items: Record<string, string | number>[] = [];
 
   for (const doc of snap.docs) {
     const p = doc.data();
-    const productId = doc.id;
+    const docId = doc.id;
     const price = `${Number(p.price).toFixed(2)} USD`;
-    const productUrl = `https://www.teedropper.com/product/${productId}`;
+    const productUrl = `https://www.teedropper.com/shop/${docId}`;
     const category = p.category || "mens";
     const googleCategory = CATEGORY_MAP[category] || "Apparel & Accessories > Clothing";
     const gender = GENDER_MAP[category] || "unisex";
     const ageGroup = AGE_MAP[category] || "adult";
+    const isFlag = category === "flags";
 
     const variants: Record<string, string> = p.variants || {};
-    const sizes = Object.keys(variants);
+    const variantKeys = Object.keys(variants);
+    if (variantKeys.length === 0) continue;
 
-    if (sizes.length === 0) continue;
+    // Detect whether variants use Color-Size format (e.g. "Black-XL")
+    const hasColorInKey = variantKeys.some((k) => k.includes("-"));
 
-    // One entry per size variant
-    for (const size of sizes) {
-      const variantId = variants[size];
+    if (isFlag) {
+      // Flags: one row, no size/gender/age_group
       items.push({
-        id: `${productId}_${size.replace(/\s+/g, "_")}`,
-        title: sizes.length === 1 || size === "One Size"
-          ? p.name
-          : `${p.name} - ${size}`,
+        id: `${docId}-one-size`,
+        title: p.name,
         description: p.description || p.name,
         availability: "in stock",
         condition: "new",
@@ -65,28 +69,81 @@ export async function GET() {
         image_link: p.image || "",
         brand: "TeeDropper",
         google_product_category: googleCategory,
-        gender,
-        age_group: ageGroup,
-        size: size === "One Size" ? "One Size" : size,
-        item_group_id: productId,
-        // Printful variant ID -- useful for catalog matching later
-        custom_label_0: variantId,
+        ...(p.color && { color: p.color }),
+        ...(p.material && { material: p.material }),
+        item_group_id: docId,
+        custom_label_0: variantKeys[0] ? variants[variantKeys[0]] : "",
       });
+      continue;
+    }
+
+    if (hasColorInKey) {
+      // Variants already keyed as Color-Size — iterate directly
+      for (const key of variantKeys) {
+        const dashIdx = key.indexOf("-");
+        const color = key.slice(0, dashIdx);
+        const size = key.slice(dashIdx + 1);
+        const image =
+          (p.colorImages && p.colorImages[color]) || p.image || "";
+
+        items.push({
+          id: `${docId}-${slug(color)}-${slug(size)}`,
+          title: `${p.name} - ${color} / ${size}`,
+          description: p.description || p.name,
+          availability: "in stock",
+          condition: "new",
+          price,
+          link: productUrl,
+          image_link: image,
+          brand: "TeeDropper",
+          google_product_category: googleCategory,
+          gender,
+          age_group: ageGroup,
+          color,
+          size,
+          ...(p.material && { material: p.material }),
+          item_group_id: docId,
+          custom_label_0: variants[key],
+        });
+      }
+    } else {
+      // Variants keyed as Size only — use stored color field, one row per size
+      const color: string = p.color || "Black";
+      const image =
+        (p.colorImages && p.colorImages[color]) || p.image || "";
+
+      for (const size of variantKeys) {
+        items.push({
+          id: `${docId}-${slug(color)}-${slug(size)}`,
+          title: `${p.name} - ${size}`,
+          description: p.description || p.name,
+          availability: "in stock",
+          condition: "new",
+          price,
+          link: productUrl,
+          image_link: image,
+          brand: "TeeDropper",
+          google_product_category: googleCategory,
+          gender,
+          age_group: ageGroup,
+          color,
+          size,
+          ...(p.material && { material: p.material }),
+          item_group_id: docId,
+          custom_label_0: variants[size],
+        });
+      }
     }
   }
 
-  const feed = {
-    version: "2.0",
-    items,
-  };
-
-  return NextResponse.json(feed, {
-    headers: {
-      "Content-Type": "application/json",
-      // Allow Meta's crawler to access the feed
-      "Access-Control-Allow-Origin": "*",
-      // Cache for 1 hour
-      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
-    },
-  });
+  return NextResponse.json(
+    { version: "2.0", items },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "no-store, max-age=0",
+      },
+    }
+  );
 }
