@@ -14,41 +14,6 @@ async function getProduct(id: string): Promise<Product | null> {
   }
 }
 
-type SizeMeasurement = {
-  type_label: string;
-  values: { size: string; value?: string; min_value?: string; max_value?: string }[];
-};
-
-async function getMeasurements(id: string, variants: Record<string, string>): Promise<SizeMeasurement[] | null> {
-  try {
-    const printfulApiKey = process.env.PRINTFUL_API_KEY!;
-    const firstVariantId = Object.values(variants)[0];
-
-    const variantRes = await fetch(`https://api.printful.com/store/variants/${firstVariantId}`, {
-      headers: { Authorization: `Bearer ${printfulApiKey}` },
-      next: { revalidate: 86400 },
-    });
-    const variantData = await variantRes.json();
-    const productId = variantData.result?.product?.product_id;
-    if (!productId) return null;
-
-    const sizesRes = await fetch(`https://api.printful.com/products/${productId}/sizes`, {
-      headers: { Authorization: `Bearer ${printfulApiKey}` },
-      next: { revalidate: 86400 },
-    });
-    const sizesData = await sizesRes.json();
-    const tables = sizesData.result?.size_tables;
-    if (!tables || tables.length === 0) return null;
-
-    const table =
-      tables.find((t: { type: string; unit: string }) => t.type === "measure_yourself" && t.unit === "inches") ||
-      tables[0];
-
-    return table.measurements as SizeMeasurement[];
-  } catch {
-    return null;
-  }
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -87,18 +52,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const product = await getProduct(id);
 
-  const measurements =
-    product && product.variants && product.category !== "flags"
-      ? await getMeasurements(id, product.variants)
-      : null;
-
-  // Pull the two most useful measurements for the page: chest and body length
-  const chestRow = measurements?.find((m) =>
-    m.type_label.toLowerCase().includes("chest") || m.type_label.toLowerCase().includes("width")
-  );
-  const lengthRow = measurements?.find((m) => m.type_label.toLowerCase().includes("length"));
-
-  const sizes = chestRow?.values.map((v) => v.size) ?? [];
+  const sizes: string[] = product?.variants
+    ? Object.keys(product.variants)
+        .map((k) => (k.includes("-") ? k.split("-")[1] : k))
+        .filter((v, i, arr) => arr.indexOf(v) === i)
+    : [];
 
   const schema = product
     ? {
@@ -147,39 +105,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       )}
-      {/* Server-rendered size measurements for crawlers and conversion */}
-      {(chestRow || lengthRow) && (
+      {/* Server-rendered fit note for crawlers */}
+      {sizes.length > 0 && product?.category !== "flags" && (
         <div className="max-w-5xl mx-auto px-4 pt-4 pb-0">
-          <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-700">
-            <p className="font-black uppercase tracking-wide text-xs text-gray-500 mb-2">Size Guide (inches)</p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-1 pr-4 font-bold">Size</th>
-                    {chestRow && <th className="text-left py-1 pr-4 font-bold">{chestRow.type_label}</th>}
-                    {lengthRow && <th className="text-left py-1 font-bold">{lengthRow.type_label}</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {sizes.map((size) => {
-                    const chest = chestRow?.values.find((v) => v.size === size);
-                    const length = lengthRow?.values.find((v) => v.size === size);
-                    const fmt = (v: typeof chest) =>
-                      v ? v.value || (v.min_value && v.max_value ? `${v.min_value}-${v.max_value}` : v.min_value || "") : "";
-                    return (
-                      <tr key={size} className="border-b border-gray-100">
-                        <td className="py-1 pr-4 font-bold">{size}</td>
-                        {chestRow && <td className="py-1 pr-4">{fmt(chest)}</td>}
-                        {lengthRow && <td className="py-1">{fmt(length)}</td>}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            <p className="text-xs text-gray-400 mt-2">True to size. Size up for an oversized fit. Measurements may vary ±1 inch.</p>
-          </div>
+          <p className="text-sm text-gray-500">
+            <strong>Sizing:</strong> Available in {sizes.join(", ")}. True to size — size up for an oversized fit. Use the Size Guide on this page for exact measurements.
+          </p>
         </div>
       )}
       <ProductPageClient id={id} />
