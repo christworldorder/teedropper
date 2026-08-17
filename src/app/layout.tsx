@@ -58,7 +58,7 @@ export default function RootLayout({
         <CartProvider>
           {/* Promo announcement bar */}
           <div className="bg-[#4a5c28] text-white text-xs sm:text-sm font-black uppercase tracking-widest text-center py-2.5 px-4">
-            Printed &amp; Shipped from the US&nbsp;&nbsp;·&nbsp;&nbsp;Free Shipping Over $100&nbsp;&nbsp;·&nbsp;&nbsp;Ships in 3–7 Days
+            Printed &amp; Shipped from the US&nbsp;&nbsp;·&nbsp;&nbsp;Free Shipping Over $100&nbsp;&nbsp;·&nbsp;&nbsp;Arrives in 5–10 Days
           </div>
           <Navbar />
           <main>{children}</main>
