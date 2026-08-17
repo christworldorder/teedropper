@@ -11,7 +11,7 @@ const CATEGORY_MAP: Record<string, string> = {
   "rashguard-mens": "Apparel & Accessories > Clothing > Activewear",
   "rashguard-womens":"Apparel & Accessories > Clothing > Activewear",
   kids:             "Apparel & Accessories > Clothing > Baby & Toddler Clothing",
-  flags:            "Home & Garden > Decor > Flags & Pennants",
+  flags:            "Home & Garden > Decor > Flags & Windsocks",
 };
 
 const GENDER_MAP: Record<string, string> = {
