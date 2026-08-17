@@ -31,7 +31,7 @@ export default function ThankYouPage() {
       <div className="text-6xl mb-6">🎉</div>
       <h1 className="text-4xl font-black mb-4">Order Confirmed!</h1>
       <p className="text-gray-600 text-lg mb-2">
-        Your gear is being printed and will ship in 3–7 business days.
+        Your gear is being printed and will arrive in 5–10 days.
       </p>
       <p className="text-gray-500 text-sm mb-10">
         Check your email for a receipt and tracking info once it ships.

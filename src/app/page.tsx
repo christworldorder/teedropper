@@ -4,8 +4,8 @@ import { getAdminDb } from "@/lib/firebase-admin";
 import { Product, ProductCategory } from "@/lib/products";
 
 const SECTIONS: { key: ProductCategory; label: string; cover?: string }[] = [
-  { key: "mens", label: "Men's Shirts", cover: "/grappling-club.png" },
-  { key: "womens", label: "Women's Shirts" },
+  { key: "mens", label: "Men's Shirts", cover: "/grappling-club-mockup.webp" },
+  { key: "womens", label: "Women's Shirts", cover: "/just-one-more-round-womens-mockup.webp" },
   { key: "rashguard-mens", label: "Men's Rash Guards" },
   { key: "rashguard-womens", label: "Women's Rash Guards", cover: "/rashguard-cheetah.jpg" },
   { key: "hoodies", label: "Hoodies / Sweatshirts" },
@@ -66,6 +66,7 @@ export default async function Home() {
                 fill
                 sizes="(max-width: 640px) 50vw, 480px"
                 className="object-cover opacity-70 group-hover:opacity-60 group-hover:scale-105 transition-all duration-500"
+                priority
               />
             )}
             <div className="absolute inset-0 flex items-end p-4 sm:p-6">

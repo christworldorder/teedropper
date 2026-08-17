@@ -371,6 +371,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                   </button>
                 ))}
               </div>
+              <p className="text-xs text-gray-500 mt-2">True to size. Size up for an oversized fit.</p>
             </div>
           )}
 
@@ -421,9 +422,21 @@ export default function ProductPageClient({ id }: { id: string }) {
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-gray-400 mt-1">
             <span>🔒 Secure checkout</span>
             <span>·</span>
-            <span>🇺🇸 Printed &amp; shipped from the US</span>
+            <span>
+              <svg display="inline" width="14" height="11" viewBox="0 0 28 20" style={{display:"inline",verticalAlign:"middle",marginRight:"3px"}} aria-hidden="true">
+                <rect width="28" height="20" fill="#B22234"/>
+                <rect y="2.86" width="28" height="1.54" fill="#fff"/>
+                <rect y="5.71" width="28" height="1.54" fill="#B22234"/>
+                <rect y="8.57" width="28" height="1.54" fill="#fff"/>
+                <rect y="11.43" width="28" height="1.54" fill="#B22234"/>
+                <rect y="14.29" width="28" height="1.54" fill="#fff"/>
+                <rect y="17.14" width="28" height="2.86" fill="#B22234"/>
+                <rect width="11.2" height="10.77" fill="#3C3B6E"/>
+              </svg>
+              Printed &amp; shipped from the US
+            </span>
             <span>·</span>
-            <span>Ships in 3-7 days</span>
+            <span>Ships in 5–10 days</span>
             <span>·</span>
             <Link href="/returns" className="underline hover:text-black">Returns policy</Link>
           </div>

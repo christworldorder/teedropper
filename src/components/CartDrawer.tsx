@@ -131,19 +131,19 @@ export default function CartDrawer() {
                     <p className="text-sm font-black text-black mt-1">${(item.price * item.quantity).toFixed(2)}</p>
 
                     {/* Quantity controls */}
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-1 mt-2">
                       <button
                         onClick={() => updateQuantity(item.productId, item.color, item.size, item.quantity - 1)}
                         aria-label="Decrease quantity"
-                        className="w-7 h-7 rounded-full border-2 border-gray-200 flex items-center justify-center font-black text-gray-600 hover:border-black hover:text-black transition-colors text-base leading-none"
+                        className="w-11 h-11 rounded-full border-2 border-gray-200 flex items-center justify-center font-black text-gray-600 hover:border-black hover:text-black transition-colors text-base leading-none"
                       >
                         &minus;
                       </button>
-                      <span className="text-sm font-black w-5 text-center">{item.quantity}</span>
+                      <span className="text-sm font-black w-6 text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.productId, item.color, item.size, item.quantity + 1)}
                         aria-label="Increase quantity"
-                        className="w-7 h-7 rounded-full border-2 border-gray-200 flex items-center justify-center font-black text-gray-600 hover:border-black hover:text-black transition-colors text-base leading-none"
+                        className="w-11 h-11 rounded-full border-2 border-gray-200 flex items-center justify-center font-black text-gray-600 hover:border-black hover:text-black transition-colors text-base leading-none"
                       >
                         +
                       </button>
@@ -154,7 +154,7 @@ export default function CartDrawer() {
                   <button
                     onClick={() => removeFromCart(item.productId, item.color, item.size)}
                     aria-label={`Remove ${item.name}`}
-                    className="text-gray-300 hover:text-red-500 transition-colors shrink-0 mt-0.5"
+                    className="w-11 h-11 flex items-center justify-center text-gray-300 hover:text-red-500 transition-colors shrink-0"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

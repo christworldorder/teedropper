@@ -14,7 +14,7 @@ export default function Navbar() {
       <nav className="bg-[#1e2a14] text-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
-            <Image src="/logo.png" alt="TeeDropper" width={120} height={120} className="rounded-full" />
+            <Image src="/logo.png" alt="TeeDropper" width={48} height={48} className="rounded-full" priority />
           </Link>
           <span className="hidden md:block text-white/50 text-xs font-bold uppercase tracking-widest">Jiu Jitsu &middot; MMA &middot; Faith &middot; Fitness</span>
           <div className="hidden md:flex items-center gap-4 text-sm font-medium">

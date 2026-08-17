@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Product } from "@/lib/products";
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ product, priority }: { product: Product; priority?: boolean }) {
   return (
     <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300">
       <Link href={`/shop/${product.id}`}>
@@ -14,6 +14,7 @@ export default function ProductCard({ product }: { product: Product }) {
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               className="object-contain group-hover:scale-105 transition-transform duration-500"
+              priority={priority}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-300 text-6xl">

@@ -196,7 +196,7 @@ export async function POST(req: NextRequest) {
               <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;">What you ordered</h2>
               <ul style="padding-left:20px;color:#333;">${itemList}</ul>
               <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
-              <p style="color:#555;font-size:14px;">Your gear ships in <strong>3–7 business days</strong>. You'll get a separate email with tracking once it's on its way.</p>
+              <p style="color:#555;font-size:14px;">Your gear typically arrives in <strong>5–10 days</strong>. You'll get a separate email with tracking once it's on its way.</p>
               <p style="color:#555;font-size:14px;">Questions? Hit us at <a href="https://teedropper.com/support" style="color:#000;">teedropper.com/support</a></p>
               <p style="font-size:12px;color:#aaa;margin-top:32px;">TeeDropper — teedropper.com</p>
             </div>

@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 
   const title = `${product.name} — TeeDropper`;
-  const description = product.description || `${product.name} — Viral tee from TeeDropper. Ships in 3-7 days.`;
+  const description = product.description || `${product.name} — Viral tee from TeeDropper. Ships in 5–10 days.`;
   const image = product.image || "https://teedropper.com/og-default.jpg";
   const url = `https://teedropper.com/shop/${id}`;
 
@@ -105,13 +105,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       )}
-      {/* Server-rendered fit note for crawlers */}
+      {/* Server-rendered fit note for crawlers — visually hidden */}
       {sizes.length > 0 && product?.category !== "flags" && (
-        <div className="max-w-5xl mx-auto px-4 pt-4 pb-0">
-          <p className="text-sm text-gray-500">
-            <strong>Sizing:</strong> Available in {sizes.join(", ")}. True to size — size up for an oversized fit. Use the Size Guide on this page for exact measurements.
-          </p>
-        </div>
+        <p className="sr-only">
+          Sizing: Available in {sizes.join(", ")}. True to size — size up for an oversized fit. Use the Size Guide on this page for exact measurements.
+        </p>
       )}
       <ProductPageClient id={id} />
     </>

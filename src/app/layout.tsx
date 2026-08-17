@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "TeeDropper: Viral Tees. Right Now.",
-    description: "The shirts blowing up online. New drops every week. Ships in 3-7 days.",
+    description: "The shirts blowing up online. New drops every week. Ships in 5–10 days.",
     url: "https://teedropper.com",
     siteName: "TeeDropper",
     images: [{ url: "https://teedropper.com/og-default.jpg", width: 1200, height: 630, alt: "TeeDropper" }],

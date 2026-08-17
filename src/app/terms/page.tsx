@@ -22,7 +22,7 @@ export default function Terms() {
 
         <section>
           <h2 className="text-xl font-black uppercase tracking-tight text-black mb-3">Shipping</h2>
-          <p>Orders typically ship within 3-7 business days after production. Shipping times vary by location. We are not responsible for delays caused by carriers or customs.</p>
+          <p>Orders are printed on demand and typically arrive within 5–10 days (2–5 days production + 3–5 days shipping). Times vary by location. We are not responsible for delays caused by carriers or customs.</p>
         </section>
 
         <section>
