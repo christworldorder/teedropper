@@ -80,8 +80,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             shippingDestination: { "@type": "DefinedRegion", addressCountry: "US" },
             deliveryTime: {
               "@type": "ShippingDeliveryTime",
-              handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
-              transitTime: { "@type": "QuantitativeValue", minValue: 3, maxValue: 7, unitCode: "DAY" },
+              handlingTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 5, unitCode: "DAY" },
+              transitTime: { "@type": "QuantitativeValue", minValue: 3, maxValue: 5, unitCode: "DAY" },
             },
           },
           hasMerchantReturnPolicy: {

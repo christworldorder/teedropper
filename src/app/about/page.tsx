@@ -27,7 +27,7 @@ export default function AboutPage() {
         </p>
 
         <p>
-          Ships in 3-7 business days. Every order is backed by our satisfaction guarantee. If something arrives
+          Printed and ships within 3-7 business days. Allow 5-10 days total for delivery. Every order is backed by our satisfaction guarantee. If something arrives
           defective or wrong, we make it right.
         </p>
       </div>
