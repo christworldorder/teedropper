@@ -1,7 +1,6 @@
-"use client";
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getAdminDb } from "@/lib/firebase-admin";
 import { Product, ProductCategory } from "@/lib/products";
 
 const SECTIONS: { key: ProductCategory; label: string; cover?: string }[] = [
@@ -14,15 +13,18 @@ const SECTIONS: { key: ProductCategory; label: string; cover?: string }[] = [
   { key: "flags", label: "Flags" },
 ];
 
-export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
+async function getProducts(): Promise<Product[]> {
+  try {
+    const db = getAdminDb();
+    const snap = await db.collection("teedropper_products").orderBy("createdAt", "desc").get();
+    return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Product));
+  } catch {
+    return [];
+  }
+}
 
-  useEffect(() => {
-    fetch("/api/products")
-      .then((r) => r.json())
-      .then(setProducts)
-      .catch(() => {});
-  }, []);
+export default async function Home() {
+  const products = await getProducts();
 
   const tiles = SECTIONS.map(({ key, label, cover: staticCover }) => {
     const sectionProducts = products.filter((p) => (p.category ?? "mens") === key);

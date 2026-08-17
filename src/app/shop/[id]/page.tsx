@@ -49,5 +49,36 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <ProductPageClient id={id} />;
+  const product = await getProduct(id);
+
+  const schema = product
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.name,
+        description: product.description || `${product.name} — TeeDropper`,
+        image: product.image,
+        brand: { "@type": "Brand", name: "TeeDropper" },
+        offers: {
+          "@type": "Offer",
+          price: product.price,
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+          url: `https://www.teedropper.com/shop/${id}`,
+          seller: { "@type": "Organization", name: "TeeDropper" },
+        },
+      }
+    : null;
+
+  return (
+    <>
+      {schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      )}
+      <ProductPageClient id={id} />
+    </>
+  );
 }
