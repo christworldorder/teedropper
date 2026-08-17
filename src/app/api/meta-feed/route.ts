@@ -5,31 +5,47 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const CATEGORY_MAP: Record<string, string> = {
-  mens:             "Apparel & Accessories > Clothing > Shirts & Tops",
-  womens:           "Apparel & Accessories > Clothing > Shirts & Tops",
-  hoodies:          "Apparel & Accessories > Clothing > Outerwear",
-  "rashguard-mens": "Apparel & Accessories > Clothing > Activewear",
+  mens:              "Apparel & Accessories > Clothing > Shirts & Tops",
+  womens:            "Apparel & Accessories > Clothing > Shirts & Tops",
+  hoodies:           "Apparel & Accessories > Clothing > Outerwear",
+  "rashguard-mens":  "Apparel & Accessories > Clothing > Activewear",
   "rashguard-womens":"Apparel & Accessories > Clothing > Activewear",
-  kids:             "Apparel & Accessories > Clothing > Baby & Toddler Clothing",
-  flags:            "Home & Garden > Decor > Flags & Windsocks",
+  kids:              "Apparel & Accessories > Clothing > Activewear",
+  flags:             "Home & Garden > Decor > Flags & Windsocks",
+};
+
+const PRODUCT_TYPE_MAP: Record<string, string> = {
+  mens:              "Apparel > T-Shirts",
+  womens:            "Apparel > Women's T-Shirts",
+  hoodies:           "Apparel > Hoodies & Sweatshirts",
+  "rashguard-mens":  "Activewear > Rash Guards > Men's",
+  "rashguard-womens":"Activewear > Rash Guards > Women's",
+  kids:              "Activewear > Rash Guards > Kids",
+  flags:             "Accessories > Flags",
 };
 
 const GENDER_MAP: Record<string, string> = {
-  mens:             "male",
-  womens:           "female",
-  hoodies:          "unisex",
-  "rashguard-mens": "male",
+  mens:              "male",
+  womens:            "female",
+  hoodies:           "unisex",
+  "rashguard-mens":  "male",
   "rashguard-womens":"female",
-  kids:             "unisex",
-  flags:            "unisex",
+  kids:              "unisex",
+  flags:             "unisex",
 };
 
-const AGE_MAP: Record<string, string> = {
-  kids: "kids",
-};
+// Toddler sizes get their own category + age_group
+const TODDLER_SIZES = new Set(["2T", "3T", "4T", "5T"]);
 
 function slug(s: string) {
   return s.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
+function sizeCategory(category: string, size: string) {
+  if (category !== "kids") return null;
+  return TODDLER_SIZES.has(size)
+    ? { google_product_category: "Apparel & Accessories > Clothing > Baby & Toddler Clothing", age_group: "toddler", product_type: "Activewear > Rash Guards > Toddler" }
+    : { google_product_category: "Apparel & Accessories > Clothing > Activewear", age_group: "kids", product_type: "Activewear > Rash Guards > Kids" };
 }
 
 export async function GET() {
@@ -45,19 +61,18 @@ export async function GET() {
     const productUrl = `https://www.teedropper.com/shop/${docId}`;
     const category = p.category || "mens";
     const googleCategory = CATEGORY_MAP[category] || "Apparel & Accessories > Clothing";
+    const productType = PRODUCT_TYPE_MAP[category] || "Apparel";
     const gender = GENDER_MAP[category] || "unisex";
-    const ageGroup = AGE_MAP[category] || "adult";
     const isFlag = category === "flags";
+    const niche: string = p.niche || category;
 
     const variants: Record<string, string> = p.variants || {};
     const variantKeys = Object.keys(variants);
     if (variantKeys.length === 0) continue;
 
-    // Detect whether variants use Color-Size format (e.g. "Black-XL")
     const hasColorInKey = variantKeys.some((k) => k.includes("-"));
 
     if (isFlag) {
-      // Flags: one row, no size/gender/age_group
       items.push({
         id: `${docId}-one-size`,
         title: p.name,
@@ -69,22 +84,23 @@ export async function GET() {
         image_link: p.image || "",
         brand: "TeeDropper",
         google_product_category: googleCategory,
+        product_type: productType,
         ...(p.color && { color: p.color }),
         ...(p.material && { material: p.material }),
         item_group_id: docId,
-        custom_label_0: variantKeys[0] ? variants[variantKeys[0]] : "",
+        custom_label_0: niche,
+        mpn: variants[variantKeys[0]] || "",
       });
       continue;
     }
 
     if (hasColorInKey) {
-      // Variants already keyed as Color-Size — iterate directly
       for (const key of variantKeys) {
         const dashIdx = key.indexOf("-");
         const color = key.slice(0, dashIdx);
         const size = key.slice(dashIdx + 1);
-        const image =
-          (p.colorImages && p.colorImages[color]) || p.image || "";
+        const image = (p.colorImages && p.colorImages[color]) || p.image || "";
+        const sizeOverrides = sizeCategory(category, size);
 
         items.push({
           id: `${docId}-${slug(color)}-${slug(size)}`,
@@ -96,23 +112,25 @@ export async function GET() {
           link: `${productUrl}?color=${encodeURIComponent(color)}&size=${encodeURIComponent(size)}`,
           image_link: image,
           brand: "TeeDropper",
-          google_product_category: googleCategory,
+          google_product_category: sizeOverrides?.google_product_category ?? googleCategory,
+          product_type: sizeOverrides?.product_type ?? productType,
           gender,
-          age_group: ageGroup,
+          age_group: sizeOverrides?.age_group ?? "adult",
           color,
           size,
           ...(p.material && { material: p.material }),
           item_group_id: docId,
-          custom_label_0: variants[key],
+          custom_label_0: niche,
+          mpn: variants[key],
         });
       }
     } else {
-      // Variants keyed as Size only — use stored color field, one row per size
       const color: string = p.color || "Black";
-      const image =
-        (p.colorImages && p.colorImages[color]) || p.image || "";
+      const image = (p.colorImages && p.colorImages[color]) || p.image || "";
 
       for (const size of variantKeys) {
+        const sizeOverrides = sizeCategory(category, size);
+
         items.push({
           id: `${docId}-${slug(color)}-${slug(size)}`,
           title: `${p.name} - ${size}`,
@@ -123,14 +141,16 @@ export async function GET() {
           link: `${productUrl}?color=${encodeURIComponent(color)}&size=${encodeURIComponent(size)}`,
           image_link: image,
           brand: "TeeDropper",
-          google_product_category: googleCategory,
+          google_product_category: sizeOverrides?.google_product_category ?? googleCategory,
+          product_type: sizeOverrides?.product_type ?? productType,
           gender,
-          age_group: ageGroup,
+          age_group: sizeOverrides?.age_group ?? "adult",
           color,
           size,
           ...(p.material && { material: p.material }),
           item_group_id: docId,
-          custom_label_0: variants[size],
+          custom_label_0: niche,
+          mpn: variants[size],
         });
       }
     }
