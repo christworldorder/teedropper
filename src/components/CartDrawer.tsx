@@ -87,7 +87,7 @@ export default function CartDrawer() {
           <button
             onClick={closeDrawer}
             aria-label="Close cart"
-            className="text-white/70 hover:text-yellow-400 transition-colors text-2xl font-black leading-none"
+            className="w-11 h-11 flex items-center justify-center text-white/70 hover:text-yellow-400 transition-colors text-2xl font-black leading-none"
           >
             &times;
           </button>
