@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { name, description, price, tag, image, variants, category } = product;
+  const { name, description, price, tag, image, variants, category, color, material, additionalImages } = product;
 
   if (!name || !price || !variants || Object.keys(variants).length === 0) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -28,6 +28,9 @@ export async function POST(req: NextRequest) {
     image: image || "",
     variants,
     ...(category ? { category } : {}),
+    ...(color ? { color } : {}),
+    ...(material ? { material } : {}),
+    ...(additionalImages?.length ? { additionalImages } : {}),
     createdAt: Date.now(),
   });
 
