@@ -77,21 +77,17 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           seller: { "@type": "Organization", name: "TeeDropper" },
           shippingDetails: {
             "@type": "OfferShippingDetails",
-            shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "USD" },
             shippingDestination: { "@type": "DefinedRegion", addressCountry: "US" },
             deliveryTime: {
               "@type": "ShippingDeliveryTime",
-              handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 3, unitCode: "DAY" },
+              handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
               transitTime: { "@type": "QuantitativeValue", minValue: 3, maxValue: 7, unitCode: "DAY" },
             },
           },
           hasMerchantReturnPolicy: {
             "@type": "MerchantReturnPolicy",
             applicableCountry: "US",
-            returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-            merchantReturnDays: 14,
-            returnMethod: "https://schema.org/ReturnByMail",
-            returnFees: "https://schema.org/FreeReturn",
+            returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
           },
         },
       }
