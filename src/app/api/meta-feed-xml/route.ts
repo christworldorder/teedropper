@@ -25,6 +25,8 @@ const GENDER_MAP: Record<string, string> = {
 
 function esc(str: string): string {
   return str
+    .replace(/[\u0080-\u009F\uFFFD]/g, "") // strip mangled encoding chars
+    .replace(/\u2013|\u2014/g, "-")          // normalize em/en dashes
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -42,7 +44,7 @@ export async function GET() {
     const p = doc.data();
     const productId = doc.id;
     const price = `${Number(p.price).toFixed(2)} USD`;
-    const productUrl = `https://www.teedropper.com/product/${productId}`;
+    const productUrl = `https://www.teedropper.com/shop/${productId}`;
     const category = p.category || "mens";
     const googleCategory = CATEGORY_MAP[category] || "Apparel &amp; Accessories &gt; Clothing";
     const gender = GENDER_MAP[category] || "unisex";
@@ -52,18 +54,37 @@ export async function GET() {
 
     if (sizes.length === 0) continue;
 
+    // Flags: one row, no size/gender/age_group
+    if (category === "flags") {
+      let imageUrl = p.image || "";
+      if (imageUrl.startsWith("/")) imageUrl = `https://www.teedropper.com${imageUrl}`;
+      itemLines.push(`    <item>
+      <g:id>${esc(productId)}</g:id>
+      <g:title>${esc(p.name)}</g:title>
+      <g:description>${esc(p.description || p.name)}</g:description>
+      <g:link>${esc(productUrl)}</g:link>
+      <g:image_link>${esc(imageUrl)}</g:image_link>
+      <g:availability>in stock</g:availability>
+      <g:quantity_to_sell_on_facebook>999</g:quantity_to_sell_on_facebook>
+      <g:condition>new</g:condition>
+      <g:price>${price}</g:price>
+      <g:brand>TeeDropper</g:brand>
+      <g:google_product_category>${googleCategory}</g:google_product_category>
+    </item>`);
+      continue;
+    }
+
     for (const size of sizes) {
       const itemId = `${productId}_${size.replace(/\s+/g, "_")}`;
       const title = sizes.length === 1 || size === "One Size"
         ? esc(p.name)
         : `${esc(p.name)} - ${esc(size)}`;
 
-      // For color variants (e.g. "Black-XL"), extract color and fall back to main product image
+      // For color variants (e.g. "Black-XL"), extract color and use color image
       const colorMatch = size.match(/^(.+)-([^-]+)$/);
       let imageUrl = colorMatch && p.colorImages?.[colorMatch[1]]
         ? p.colorImages[colorMatch[1]]
         : p.image || "";
-      // Ensure image URL is absolute
       if (imageUrl && imageUrl.startsWith("/")) {
         imageUrl = `https://www.teedropper.com${imageUrl}`;
       }
