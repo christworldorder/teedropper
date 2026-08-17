@@ -360,8 +360,10 @@ export default function ProductPageClient({ id }: { id: string }) {
           )}
 
           {/* Trust badges */}
-          <div className="flex items-center justify-center gap-4 text-xs text-gray-400 mt-1">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-gray-400 mt-1">
             <span>🔒 Secure checkout</span>
+            <span>·</span>
+            <span>🇺🇸 Printed &amp; shipped from the US</span>
             <span>·</span>
             <span>Ships in 3-7 days</span>
             <span>·</span>

@@ -58,6 +58,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         name: product.name,
         description: product.description || `${product.name} — TeeDropper`,
         image: product.image,
+        sku: id,
         brand: { "@type": "Brand", name: "TeeDropper" },
         offers: {
           "@type": "Offer",
