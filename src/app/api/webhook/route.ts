@@ -145,7 +145,32 @@ export async function POST(req: NextRequest) {
     }
 
     const printfulOrderId = data.result?.id;
-    console.log("Printful order created and confirmed:", printfulOrderId);
+    console.log("Printful order created:", printfulOrderId);
+
+    // Explicitly confirm the order (confirm:true in body is unreliable)
+    const confirmRes = await fetch(`https://api.printful.com/orders/${printfulOrderId}/confirm`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${printfulApiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (!confirmRes.ok) {
+      const confirmErr = await confirmRes.json();
+      console.error("Printful order confirm failed:", confirmErr);
+      // Order exists but isn't confirmed — log it so it can be manually confirmed
+      await eventRef.set({
+        processedAt: Date.now(),
+        printfulOrderId,
+        printfulError: `confirm_failed: ${JSON.stringify(confirmErr)}`,
+        customerEmail: email,
+        customerName,
+        items: printfulItems.map((i) => ({ variantId: i.sync_variant_id, quantity: i.quantity })),
+        status: "printful_confirm_failed",
+      });
+      return NextResponse.json({ error: "Printful order confirm failed", details: confirmErr }, { status: 500 });
+    }
+    console.log("Printful order confirmed:", printfulOrderId);
 
     // Send confirmation email to customer
     if (email) {
