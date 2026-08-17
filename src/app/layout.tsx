@@ -5,6 +5,9 @@ import { CartProvider } from "@/context/CartContext";
 import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
+  verification: {
+    google: "kIYeBc4hCocU9wba-MM0E2DnkYmp9e-V7I3CW0U_BvA",
+  },
   title: "TeeDropper - Trending Tees Dropped Daily",
   description: "Viral tees for the moment. New drops every week.",
   icons: {
