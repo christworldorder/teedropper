@@ -152,7 +152,7 @@ export default function AdminReviewsPage() {
                   </span>
                 )}
                 {review.incentivized && (
-                  <span className="text-orange-500 font-bold">Has photo — will show FTC disclosure</span>
+                  <span className="text-orange-500 font-bold">Incentivized — received free/discounted product (FTC disclosure will show)</span>
                 )}
               </div>
 

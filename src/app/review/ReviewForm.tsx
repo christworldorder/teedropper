@@ -24,6 +24,7 @@ export default function ReviewForm({
   const [authorName, setAuthorName] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [incentivized, setIncentivized] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -72,6 +73,7 @@ export default function ReviewForm({
           fit: fit || undefined,
           photoUrl: photoUrl || undefined,
           authorName: authorName.trim(),
+          incentivized,
         }),
       });
 
@@ -237,6 +239,20 @@ export default function ReviewForm({
           className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-sm"
         />
       </div>
+
+      {/* FTC disclosure */}
+      <label className="flex items-start gap-3 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={incentivized}
+          onChange={(e) => setIncentivized(e.target.checked)}
+          className="mt-0.5 w-4 h-4 shrink-0 accent-black"
+        />
+        <span className="text-xs text-gray-500 leading-relaxed">
+          I received this product for free or at a discount in exchange for my review.{" "}
+          <span className="text-gray-400">(Required disclosure — FTC guidelines)</span>
+        </span>
+      </label>
 
       <button
         type="submit"

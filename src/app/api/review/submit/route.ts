@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { token, rating, title, reviewBody, fit, photoUrl, authorName } = body;
+  const { token, rating, title, reviewBody, fit, photoUrl, authorName, incentivized } = body;
 
   if (!token || !rating || !title || !reviewBody || !authorName) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -33,8 +33,6 @@ export async function POST(req: NextRequest) {
     if (tokenData.used) {
       return NextResponse.json({ error: "This review link has already been used" }, { status: 409 });
     }
-
-    const incentivized = !!photoUrl;
 
     // Create the review
     await db.collection("reviews").add({

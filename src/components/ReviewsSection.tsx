@@ -138,7 +138,7 @@ export default function ReviewsSection({ productId }: { productId: string }) {
               )}
 
               {review.incentivized && (
-                <span className="text-gray-400 italic">Includes customer photo</span>
+                <span className="text-gray-400 italic">Received product free or at a discount</span>
               )}
             </div>
           </div>

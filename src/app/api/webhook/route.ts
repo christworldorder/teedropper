@@ -194,7 +194,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Send confirmation email to customer
+    // Send confirmation email to customer (no review link — shirt hasn't arrived yet)
     if (email) {
       try {
         const resend = new Resend(process.env.RESEND_API_KEY!);
@@ -205,15 +205,6 @@ export async function POST(req: NextRequest) {
             return `<li style="margin-bottom:4px;">${name} × ${item.quantity}</li>`;
           })
           .join("");
-
-        const reviewSection = reviewTokens.length > 0
-          ? `<hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
-             <h2 style="font-size:15px;font-weight:700;margin-bottom:6px;">Enjoying your gear?</h2>
-             <p style="color:#555;font-size:14px;margin:0 0 8px;">After it arrives, we'd love to hear what you think. Your review helps other customers and means a lot to us.</p>
-             ${reviewTokens.map(({ token }) =>
-               `<a href="https://www.teedropper.com/review?token=${token}" style="display:inline-block;background:#facc15;color:#000;font-weight:900;padding:10px 20px;border-radius:20px;text-decoration:none;font-size:14px;">Leave a Review</a>`
-             ).join(" ")}`
-          : "";
 
         await resend.emails.send({
           from: "TeeDropper <support@nevermissed.app>",
@@ -229,11 +220,40 @@ export async function POST(req: NextRequest) {
               <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
               <p style="color:#555;font-size:14px;">Your gear typically arrives in <strong>5–10 days</strong>. You'll get a separate email with tracking once it's on its way.</p>
               <p style="color:#555;font-size:14px;">Questions? Hit us at <a href="https://www.teedropper.com/support" style="color:#000;">teedropper.com/support</a></p>
-              ${reviewSection}
               <p style="font-size:12px;color:#aaa;margin-top:32px;">TeeDropper — teedropper.com</p>
             </div>
           `,
         });
+
+        // Schedule the review request email for day 15 — after the shirt has arrived
+        if (reviewTokens.length > 0) {
+          const reviewLinks = reviewTokens
+            .map(({ token }) =>
+              `<a href="https://www.teedropper.com/review?token=${token}" style="display:inline-block;background:#facc15;color:#000;font-weight:900;padding:12px 24px;border-radius:20px;text-decoration:none;font-size:15px;margin:4px 0;">Leave a Review</a>`
+            )
+            .join("<br/>");
+
+          const day15 = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
+
+          await resend.emails.send({
+            from: "TeeDropper <support@nevermissed.app>",
+            to: email,
+            subject: "How's your TeeDropper gear?",
+            scheduledAt: day15,
+            html: `
+              <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+                <h1 style="font-size:22px;font-weight:900;margin-bottom:4px;">Your gear should have arrived by now.</h1>
+                <p style="color:#555;margin-top:0;">Hey ${customerName.split(" ")[0]} — if you've had a chance to wear it, we'd love to know what you think. Takes 2 minutes.</p>
+                <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+                ${reviewLinks}
+                <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+                <p style="color:#aaa;font-size:12px;">No pressure — but honest reviews help other fighters and believers find the right gear.</p>
+                <p style="color:#aaa;font-size:12px;">Questions? <a href="https://www.teedropper.com/support" style="color:#555;">teedropper.com/support</a></p>
+                <p style="font-size:12px;color:#aaa;margin-top:32px;">TeeDropper — teedropper.com</p>
+              </div>
+            `,
+          });
+        }
       } catch (emailErr) {
         console.error("Confirmation email failed:", emailErr);
         // Don't fail the webhook over an email error
