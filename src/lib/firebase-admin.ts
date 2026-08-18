@@ -8,7 +8,7 @@ export function getAdminDb(): Firestore {
     const app = getApps().length
       ? getApps()[0]
       : initializeApp({
-          credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT!)),
+          credential: cert(JSON.parse(process.env["FIREBASE_SERVICE_ACCOUNT"]!)),
         });
     _db = getFirestore(app);
   }
