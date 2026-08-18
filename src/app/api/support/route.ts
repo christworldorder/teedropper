@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const email = formData.get("email") as string;
-    const orderEmail = formData.get("orderEmail") as string;
+    const orderEmail = (formData.get("orderEmail") as string) || email;
     const orderNumber = (formData.get("orderNumber") as string) || "";
     const issue = formData.get("issue") as string;
     const description = formData.get("description") as string;

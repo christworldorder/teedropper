@@ -15,6 +15,7 @@ export default function SupportPage() {
   const [form, setForm] = useState({
     email: "",
     altEmail: "",
+    orderNumber: "",
     issue: "",
     description: "",
   });
@@ -29,6 +30,7 @@ export default function SupportPage() {
     const data = new FormData();
     data.append("email", form.email);
     data.append("orderEmail", form.altEmail || form.email);
+    data.append("orderNumber", form.orderNumber);
     data.append("issue", form.issue);
     data.append("description", form.description);
     if (photo) data.append("photo", photo);
@@ -90,6 +92,19 @@ export default function SupportPage() {
             />
           </div>
         )}
+
+        <div>
+          <label className="block text-sm font-bold uppercase tracking-wide mb-1">
+            Order number <span className="text-gray-400 font-normal">(optional)</span>
+          </label>
+          <input
+            type="text"
+            placeholder="From your confirmation email, if you have it"
+            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white text-gray-900"
+            value={form.orderNumber}
+            onChange={e => setForm(f => ({ ...f, orderNumber: e.target.value }))}
+          />
+        </div>
 
         <div>
           <label className="block text-sm font-bold uppercase tracking-wide mb-2">What can we help with? *</label>

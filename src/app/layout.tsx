@@ -67,7 +67,7 @@ export default function RootLayout({
           <Navbar />
           <main>{children}</main>
           <footer className="bg-[#1e2a14] text-white py-10 mt-20 text-sm text-white/50">
-            <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-white/60">
               <div className="flex flex-col items-center sm:items-start gap-1">
                 <span>© {new Date().getFullYear()} TeeDropper. All rights reserved.</span>
                 <a href="mailto:teedropper@proton.me" className="hover:text-white transition-colors">teedropper@proton.me</a>

@@ -16,7 +16,7 @@ export default function Navbar() {
           <Link href="/">
             <Image src="/logo.png" alt="TeeDropper" width={120} height={120} className="rounded-full" priority />
           </Link>
-          <span className="hidden md:block text-white/50 text-xs font-bold uppercase tracking-widest">Jiu Jitsu &middot; MMA &middot; Faith &middot; Fitness</span>
+          <span className="hidden md:block text-white/60 text-xs font-bold uppercase tracking-widest">Jiu Jitsu &middot; MMA &middot; Faith &middot; Fitness</span>
           <div className="hidden md:flex items-center gap-4 text-sm font-medium">
             {/* Cart icon */}
             <button
