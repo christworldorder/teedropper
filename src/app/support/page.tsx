@@ -98,16 +98,25 @@ export default function SupportPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-bold uppercase tracking-wide mb-1">What can we help with? *</label>
-          <select
-            required
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white"
-            value={form.issue}
-            onChange={e => setForm(f => ({ ...f, issue: e.target.value }))}
-          >
-            <option value="">Select one</option>
-            {ISSUES.map(i => <option key={i} value={i}>{i}</option>)}
-          </select>
+          <label className="block text-sm font-bold uppercase tracking-wide mb-2">What can we help with? *</label>
+          <div className="flex flex-wrap gap-2">
+            {ISSUES.map(i => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setForm(f => ({ ...f, issue: i }))}
+                className={`px-4 py-2 rounded-full border-2 text-sm font-bold transition-colors ${
+                  form.issue === i
+                    ? "bg-black text-white border-black"
+                    : "bg-white text-gray-900 border-gray-300 hover:border-black"
+                }`}
+              >
+                {i}
+              </button>
+            ))}
+          </div>
+          {/* Hidden input so form validation still works */}
+          <input type="text" required value={form.issue} readOnly className="sr-only" tabIndex={-1} />
         </div>
 
         <div>
