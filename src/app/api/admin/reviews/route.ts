@@ -3,12 +3,12 @@ import { getAdminDb } from "@/lib/firebase-admin";
 
 export const dynamic = "force-dynamic";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-
 export async function GET(req: NextRequest) {
-  const password = req.nextUrl.searchParams.get("password");
+  const expected = process.env.ADMIN_PASSWORD;
+  if (!expected) return NextResponse.json({ error: "Not configured" }, { status: 500 });
 
-  if (password !== ADMIN_PASSWORD) {
+  const password = req.nextUrl.searchParams.get("password");
+  if (typeof password !== "string" || password !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

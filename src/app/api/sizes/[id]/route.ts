@@ -5,36 +5,45 @@ export const dynamic = "force-dynamic";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const printfulApiKey = process.env.PRINTFUL_API_KEY!;
 
-  // Get product from Firestore to find a variant ID
   const db = getAdminDb();
   const doc = await db.collection("teedropper_products").doc(id).get();
   if (!doc.exists) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
-  const variants = doc.data()?.variants as Record<string, string>;
-  const firstVariantId = Object.values(variants)[0];
+  // Return cached measurements if available — set at product upload time
+  const cached = doc.data()?.measurements;
+  if (cached) return NextResponse.json({ measurements: cached });
 
-  // Get the Printful base product ID from the sync variant
-  const variantRes = await fetch(`https://api.printful.com/store/variants/${firstVariantId}`, {
-    headers: { Authorization: `Bearer ${printfulApiKey}` },
-  });
-  const variantData = await variantRes.json();
-  const productId = variantData.result?.product?.product_id;
+  // Fall back to live Printful call for products added before caching was introduced
+  try {
+    const printfulApiKey = process.env.PRINTFUL_API_KEY!;
+    const variants = doc.data()?.variants as Record<string, string>;
+    const firstVariantId = Object.values(variants)[0];
 
-  if (!productId) return NextResponse.json({ error: "Could not find base product" }, { status: 500 });
+    const variantRes = await fetch(`https://api.printful.com/store/variants/${firstVariantId}`, {
+      headers: { Authorization: `Bearer ${printfulApiKey}` },
+    });
+    const variantData = await variantRes.json();
+    const productId = variantData.result?.product?.product_id;
 
-  // Fetch size table from Printful catalog
-  const sizesRes = await fetch(`https://api.printful.com/products/${productId}/sizes`, {
-    headers: { Authorization: `Bearer ${printfulApiKey}` },
-  });
-  const sizesData = await sizesRes.json();
-  const tables = sizesData.result?.size_tables;
+    if (!productId) return NextResponse.json({ error: "Could not find base product" }, { status: 500 });
 
-  if (!tables || tables.length === 0) return NextResponse.json({ error: "No size data" }, { status: 404 });
+    const sizesRes = await fetch(`https://api.printful.com/products/${productId}/sizes`, {
+      headers: { Authorization: `Bearer ${printfulApiKey}` },
+    });
+    const sizesData = await sizesRes.json();
+    const tables = sizesData.result?.size_tables as { type: string; unit: string; measurements: unknown }[] | undefined;
 
-  // Return the "measure_yourself" table in inches
-  const table = tables.find((t: { type: string; unit: string }) => t.type === "measure_yourself" && t.unit === "inches") || tables[0];
+    if (!tables?.length) return NextResponse.json({ error: "No size data" }, { status: 404 });
 
-  return NextResponse.json({ measurements: table.measurements });
+    const table = tables.find((t) => t.type === "measure_yourself" && t.unit === "inches") ?? tables[0];
+
+    // Cache for next request
+    await db.collection("teedropper_products").doc(id).update({ measurements: table.measurements });
+
+    return NextResponse.json({ measurements: table.measurements });
+  } catch (err) {
+    console.error("Printful sizes fetch failed for", id, err);
+    return NextResponse.json({ error: "Size chart temporarily unavailable" }, { status: 503 });
+  }
 }

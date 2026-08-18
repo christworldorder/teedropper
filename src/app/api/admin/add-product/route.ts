@@ -3,12 +3,13 @@ import { getAdminDb } from "@/lib/firebase-admin";
 
 export const dynamic = "force-dynamic";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-
 export async function POST(req: NextRequest) {
+  const expected = process.env.ADMIN_PASSWORD;
+  if (!expected) return NextResponse.json({ error: "Not configured" }, { status: 500 });
+
   const { password, product } = await req.json();
 
-  if (password !== ADMIN_PASSWORD) {
+  if (typeof password !== "string" || password !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -41,6 +42,32 @@ export async function POST(req: NextRequest) {
     ...(additionalImages?.length ? { additionalImages: additionalImages.map(toAbsolute) } : {}),
     createdAt: Date.now(),
   });
+
+  // Cache Printful size measurements on the product doc so the size chart
+  // never needs a live API call at customer request time.
+  try {
+    const printfulApiKey = process.env.PRINTFUL_API_KEY!;
+    const firstVariantId = Object.values(variants)[0] as string;
+    const variantRes = await fetch(`https://api.printful.com/store/variants/${firstVariantId}`, {
+      headers: { Authorization: `Bearer ${printfulApiKey}` },
+    });
+    const variantData = await variantRes.json();
+    const printfulProductId = variantData.result?.product?.product_id;
+    if (printfulProductId) {
+      const sizesRes = await fetch(`https://api.printful.com/products/${printfulProductId}/sizes`, {
+        headers: { Authorization: `Bearer ${printfulApiKey}` },
+      });
+      const sizesData = await sizesRes.json();
+      const tables = sizesData.result?.size_tables as { type: string; unit: string; measurements: unknown }[] | undefined;
+      if (tables?.length) {
+        const table = tables.find((t) => t.type === "measure_yourself" && t.unit === "inches") ?? tables[0];
+        await ref.update({ measurements: table.measurements });
+      }
+    }
+  } catch (err) {
+    // Non-fatal: sizes endpoint falls back to live Printful call
+    console.error("Failed to cache measurements for", ref.id, err);
+  }
 
   return NextResponse.json({ success: true, id: ref.id });
 }

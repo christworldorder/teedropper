@@ -4,6 +4,10 @@ import * as Sentry from "@sentry/nextjs";
 
 export const runtime = "nodejs";
 
+function esc(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -29,15 +33,15 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: "TeeDropper Support <support@nevermissed.app>",
       to: "teedropper@proton.me",
-      subject: `[Support] ${issue} — ${orderEmail}`,
+      subject: `[Support] ${esc(issue)} — ${esc(orderEmail)}`,
       html: `
         <h2>New Support Request</h2>
         <table style="border-collapse:collapse;width:100%;font-family:sans-serif;font-size:14px;">
-          <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;width:180px;">Customer Email</td><td style="padding:8px;border:1px solid #ddd;">${email}</td></tr>
-          <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Checkout Email</td><td style="padding:8px;border:1px solid #ddd;">${orderEmail}</td></tr>
-          ${orderNumber ? `<tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Order Number</td><td style="padding:8px;border:1px solid #ddd;">${orderNumber}</td></tr>` : ""}
-          <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Issue Type</td><td style="padding:8px;border:1px solid #ddd;">${issue}</td></tr>
-          <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Description</td><td style="padding:8px;border:1px solid #ddd;">${description}</td></tr>
+          <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;width:180px;">Customer Email</td><td style="padding:8px;border:1px solid #ddd;">${esc(email)}</td></tr>
+          <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Checkout Email</td><td style="padding:8px;border:1px solid #ddd;">${esc(orderEmail)}</td></tr>
+          ${orderNumber ? `<tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Order Number</td><td style="padding:8px;border:1px solid #ddd;">${esc(orderNumber)}</td></tr>` : ""}
+          <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Issue Type</td><td style="padding:8px;border:1px solid #ddd;">${esc(issue)}</td></tr>
+          <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Description</td><td style="padding:8px;border:1px solid #ddd;">${esc(description)}</td></tr>
         </table>
         <br/>
         <p style="font-family:sans-serif;font-size:13px;color:#666;">Photo attached. To resolve: log into Printful → find order by email → Report a problem.</p>
