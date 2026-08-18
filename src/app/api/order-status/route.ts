@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { Resend } from "resend";
 import { randomUUID } from "crypto";
@@ -25,7 +26,10 @@ export async function POST(req: NextRequest) {
       .get();
 
     // Always respond "sent" regardless of whether we found orders —
-    // prevents email enumeration (attacker can't tell who is a customer)
+    // prevents email enumeration (attacker can't tell who is a customer).
+    // Use waitUntil so Vercel keeps the invocation alive until the send
+    // completes — fire-and-forget after Response.json() risks the runtime
+    // freezing the function before Resend finishes.
     if (!snap.empty) {
       const token = randomUUID();
       const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
@@ -37,25 +41,27 @@ export async function POST(req: NextRequest) {
       });
 
       const resend = new Resend(process.env.RESEND_API_KEY!);
-      await resend.emails.send({
-        from: "TeeDropper <support@nevermissed.app>",
-        to: normalized,
-        subject: "Your TeeDropper order status link",
-        html: `
-          <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px;">
-            <h1 style="font-size:20px;font-weight:900;margin-bottom:4px;">Order Status</h1>
-            <p style="color:#555;margin-top:0;font-size:14px;">Click the link below to view your order status. It expires in 1 hour.</p>
-            <a href="https://www.teedropper.com/order-status?token=${token}"
-               style="display:inline-block;background:#facc15;color:#000;font-weight:900;padding:12px 24px;border-radius:20px;text-decoration:none;font-size:15px;margin:16px 0;">
-              View My Orders
-            </a>
-            <p style="color:#aaa;font-size:12px;margin-top:16px;">
-              Didn't request this? Ignore it — no action needed.<br/>
-              Questions? <a href="https://www.teedropper.com/support" style="color:#555;">teedropper.com/support</a>
-            </p>
-          </div>
-        `,
-      });
+      waitUntil(
+        resend.emails.send({
+          from: "TeeDropper <support@nevermissed.app>",
+          to: normalized,
+          subject: "Your TeeDropper order status link",
+          html: `
+            <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px;">
+              <h1 style="font-size:20px;font-weight:900;margin-bottom:4px;">Order Status</h1>
+              <p style="color:#555;margin-top:0;font-size:14px;">Click the link below to view your order status. It expires in 1 hour.</p>
+              <a href="https://www.teedropper.com/order-status?token=${token}"
+                 style="display:inline-block;background:#facc15;color:#000;font-weight:900;padding:12px 24px;border-radius:20px;text-decoration:none;font-size:15px;margin:16px 0;">
+                View My Orders
+              </a>
+              <p style="color:#aaa;font-size:12px;margin-top:16px;">
+                Didn't request this? Ignore it — no action needed.<br/>
+                Questions? <a href="https://www.teedropper.com/support" style="color:#555;">teedropper.com/support</a>
+              </p>
+            </div>
+          `,
+        })
+      );
     }
 
     return NextResponse.json({ sent: true });
