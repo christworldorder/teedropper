@@ -22,22 +22,22 @@ export async function GET(req: NextRequest) {
       .orderBy("createdAt", "asc")
       .get();
 
-    const reviews = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const reviews = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Record<string, unknown> & { id: string; productId: string }));
 
     // Fetch product names for display
-    const productIds = [...new Set(reviews.map((r: { productId: string }) => r.productId))];
+    const productIds = [...new Set(reviews.map((r) => r.productId))];
     const productMap: Record<string, string> = {};
     await Promise.all(
       productIds.map(async (pid) => {
-        const pDoc = await db.collection("teedropper_products").doc(pid as string).get();
-        if (pDoc.exists) productMap[pid as string] = pDoc.data()?.name ?? pid;
+        const pDoc = await db.collection("teedropper_products").doc(pid).get();
+        if (pDoc.exists) productMap[pid] = pDoc.data()?.name ?? pid;
       })
     );
 
     return NextResponse.json({
-      reviews: reviews.map((r: Record<string, unknown>) => ({
+      reviews: reviews.map((r) => ({
         ...r,
-        productName: productMap[r.productId as string] ?? r.productId,
+        productName: productMap[r.productId] ?? r.productId,
       })),
     });
   } catch (err) {
