@@ -14,10 +14,11 @@ const ISSUES = [
 export default function SupportPage() {
   const [form, setForm] = useState({
     email: "",
-    orderEmail: "",
+    altEmail: "",
     issue: "",
     description: "",
   });
+  const [showAltEmail, setShowAltEmail] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
@@ -27,7 +28,7 @@ export default function SupportPage() {
 
     const data = new FormData();
     data.append("email", form.email);
-    data.append("orderEmail", form.orderEmail);
+    data.append("orderEmail", form.altEmail || form.email);
     data.append("issue", form.issue);
     data.append("description", form.description);
     if (photo) data.append("photo", photo);
@@ -41,7 +42,7 @@ export default function SupportPage() {
       <div className="max-w-xl mx-auto px-4 py-24 text-center">
         <h1 className="text-4xl font-black uppercase tracking-tight mb-4">Got it.</h1>
         <p className="text-gray-600">
-          We received your message and will follow up at <strong>{form.email}</strong> within 1–2 business days.
+          We received your message and will follow up at <strong>{form.altEmail || form.email}</strong> within 1–2 business days.
         </p>
       </div>
     );
@@ -61,26 +62,34 @@ export default function SupportPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-bold uppercase tracking-wide mb-1">Your email *</label>
-          <input
-            type="email"
-            required
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            value={form.email}
-            onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-          />
-        </div>
-
-        <div>
           <label className="block text-sm font-bold uppercase tracking-wide mb-1">Email used at checkout *</label>
           <input
             type="email"
             required
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            value={form.orderEmail}
-            onChange={e => setForm(f => ({ ...f, orderEmail: e.target.value }))}
+            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white text-gray-900"
+            value={form.email}
+            onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
           />
+          <button
+            type="button"
+            onClick={() => setShowAltEmail(v => !v)}
+            className="text-xs text-gray-400 hover:text-black underline mt-1.5 block"
+          >
+            {showAltEmail ? "Remove" : "Reply to a different email address"}
+          </button>
         </div>
+
+        {showAltEmail && (
+          <div>
+            <label className="block text-sm font-bold uppercase tracking-wide mb-1">Reply to (optional)</label>
+            <input
+              type="email"
+              className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white text-gray-900"
+              value={form.altEmail}
+              onChange={e => setForm(f => ({ ...f, altEmail: e.target.value }))}
+            />
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-bold uppercase tracking-wide mb-2">What can we help with? *</label>

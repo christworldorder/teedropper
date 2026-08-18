@@ -17,7 +17,7 @@ export default function NotFound() {
         </Link>
         <Link
           href="/support"
-          className="border-2 border-black text-black font-black px-6 py-3 rounded-full hover:bg-black hover:text-white transition-colors uppercase tracking-wide text-sm"
+          className="bg-white text-gray-900 border-2 border-gray-300 font-black px-6 py-3 rounded-full hover:border-black transition-colors uppercase tracking-wide text-sm"
         >
           Get Help
         </Link>
