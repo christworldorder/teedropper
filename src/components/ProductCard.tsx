@@ -2,7 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { Product } from "@/lib/products";
 
+const NEW_DROP_TTL_MS = 14 * 24 * 60 * 60 * 1000;
+
 export default function ProductCard({ product, priority }: { product: Product; priority?: boolean }) {
+  const isNewDrop = product.tag?.toLowerCase() === "new drop";
+  const expired = isNewDrop && product.createdAt != null && Date.now() - product.createdAt > NEW_DROP_TTL_MS;
+  const showTag = product.tag && !expired;
+
   return (
     <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300">
       <Link href={`/shop/${product.id}`}>
@@ -21,9 +27,11 @@ export default function ProductCard({ product, priority }: { product: Product; p
               👕
             </div>
           )}
-          <span className="absolute top-3 left-3 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide">
-            {product.tag}
-          </span>
+          {showTag && (
+            <span className="absolute top-3 left-3 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide">
+              {product.tag}
+            </span>
+          )}
         </div>
       </Link>
       <div className="p-4">

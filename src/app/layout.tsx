@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   verification: {
     google: "kIYeBc4hCocU9wba-MM0E2DnkYmp9e-V7I3CW0U_BvA",
   },
-  title: "TeeDropper - Trending Tees Dropped Daily",
-  description: "Viral tees for the moment. New drops every week.",
+  title: "TeeDropper — Premium Fight, Faith & Fitness Apparel",
+  description: "Premium tees for fighters, believers, and anyone who trains. Ships in 5–10 days from the US.",
   alternates: {
     canonical: "https://www.teedropper.com",
   },
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   openGraph: {
-    title: "TeeDropper: Viral Tees. Right Now.",
-    description: "The shirts blowing up online. New drops every week. Ships in 5–10 days.",
+    title: "TeeDropper — Fight, Faith & Fitness Apparel",
+    description: "Premium tees for fighters, believers, and anyone who trains hard. Ships in 5–10 days from the US.",
     url: "https://www.teedropper.com",
     siteName: "TeeDropper",
     images: [{ url: "https://www.teedropper.com/og-default.jpg", width: 1731, height: 909, alt: "TeeDropper" }],
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TeeDropper: Viral Tees. Right Now.",
-    description: "The shirts blowing up online. New drops every week.",
+    title: "TeeDropper — Fight, Faith & Fitness Apparel",
+    description: "Premium tees for fighters, believers, and anyone who trains hard.",
     images: ["https://www.teedropper.com/og-default.jpg"],
   },
 };

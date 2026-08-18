@@ -40,6 +40,7 @@ export async function generateMetadata({
   return {
     title: `${label} — TeeDropper`,
     description: `Shop ${label} at TeeDropper. Premium gear for fighters, believers, and anyone who trains hard.`,
+    alternates: { canonical: `https://www.teedropper.com/category/${cat}` },
   };
 }
 
