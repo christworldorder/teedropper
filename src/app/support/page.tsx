@@ -15,7 +15,6 @@ export default function SupportPage() {
   const [form, setForm] = useState({
     email: "",
     orderEmail: "",
-    orderNumber: "",
     issue: "",
     description: "",
   });
@@ -29,7 +28,6 @@ export default function SupportPage() {
     const data = new FormData();
     data.append("email", form.email);
     data.append("orderEmail", form.orderEmail);
-    data.append("orderNumber", form.orderNumber);
     data.append("issue", form.issue);
     data.append("description", form.description);
     if (photo) data.append("photo", photo);
@@ -81,19 +79,6 @@ export default function SupportPage() {
             className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
             value={form.orderEmail}
             onChange={e => setForm(f => ({ ...f, orderEmail: e.target.value }))}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-bold uppercase tracking-wide mb-1">
-            Order number <span className="text-gray-400 font-normal">(optional — from your confirmation email)</span>
-          </label>
-          <input
-            type="text"
-            placeholder="cs_live_..."
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            value={form.orderNumber}
-            onChange={e => setForm(f => ({ ...f, orderNumber: e.target.value }))}
           />
         </div>
 
