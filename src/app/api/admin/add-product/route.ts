@@ -18,19 +18,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  if (!description || description.length < 300) {
+    return NextResponse.json({ error: `Description must be at least 300 characters (got ${description?.length ?? 0})` }, { status: 400 });
+  }
+
+  const BASE_URL = "https://www.teedropper.com";
+  const toAbsolute = (url: string) =>
+    url && url.startsWith("/") ? BASE_URL + url : url;
+
   const db = getAdminDb();
 
   const ref = await db.collection("teedropper_products").add({
     name,
-    description: description || "",
+    description,
     price: parseFloat(price),
     tag: tag || "New Drop",
-    image: image || "",
+    image: toAbsolute(image || ""),
     variants,
     ...(category ? { category } : {}),
     ...(color ? { color } : {}),
     ...(material ? { material } : {}),
-    ...(additionalImages?.length ? { additionalImages } : {}),
+    ...(additionalImages?.length ? { additionalImages: additionalImages.map(toAbsolute) } : {}),
     createdAt: Date.now(),
   });
 
