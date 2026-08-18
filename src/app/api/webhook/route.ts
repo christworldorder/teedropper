@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { Resend } from "resend";
 import { getAdminDb } from "@/lib/firebase-admin";
+import { randomUUID } from "crypto";
 
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -172,17 +173,47 @@ export async function POST(req: NextRequest) {
     }
     console.log("Printful order confirmed:", printfulOrderId);
 
+    // Generate review tokens — one per unique product, before email so links can be included
+    const productIds = session.metadata?.product_id
+      ? [...new Set(session.metadata.product_id.split(",").filter(Boolean))]
+      : [];
+    const reviewTokens: { productId: string; token: string }[] = [];
+    if (productIds.length > 0) {
+      const db2 = getAdminDb();
+      await Promise.all(
+        productIds.map(async (productId) => {
+          const token = randomUUID();
+          await db2.collection("review_tokens").doc(token).set({
+            orderId: session.id,
+            productId,
+            used: false,
+            createdAt: Date.now(),
+          });
+          reviewTokens.push({ productId, token });
+        })
+      );
+    }
+
     // Send confirmation email to customer
     if (email) {
       try {
         const resend = new Resend(process.env.RESEND_API_KEY!);
+        const lineItemsData = (session.line_items as Stripe.ApiList<Stripe.LineItem> | undefined)?.data ?? [];
         const itemList = printfulItems
           .map((item, idx) => {
-            const lineItemsData = (session.line_items as Stripe.ApiList<Stripe.LineItem> | undefined)?.data ?? [];
             const name = lineItemsData[idx]?.description || `Item ${idx + 1}`;
             return `<li style="margin-bottom:4px;">${name} × ${item.quantity}</li>`;
           })
           .join("");
+
+        const reviewSection = reviewTokens.length > 0
+          ? `<hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+             <h2 style="font-size:15px;font-weight:700;margin-bottom:6px;">Enjoying your gear?</h2>
+             <p style="color:#555;font-size:14px;margin:0 0 8px;">After it arrives, we'd love to hear what you think. Your review helps other customers and means a lot to us.</p>
+             ${reviewTokens.map(({ token }) =>
+               `<a href="https://www.teedropper.com/review?token=${token}" style="display:inline-block;background:#facc15;color:#000;font-weight:900;padding:10px 20px;border-radius:20px;text-decoration:none;font-size:14px;">Leave a Review</a>`
+             ).join(" ")}`
+          : "";
 
         await resend.emails.send({
           from: "TeeDropper <support@nevermissed.app>",
@@ -197,7 +228,8 @@ export async function POST(req: NextRequest) {
               <ul style="padding-left:20px;color:#333;">${itemList}</ul>
               <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
               <p style="color:#555;font-size:14px;">Your gear typically arrives in <strong>5–10 days</strong>. You'll get a separate email with tracking once it's on its way.</p>
-              <p style="color:#555;font-size:14px;">Questions? Hit us at <a href="https://teedropper.com/support" style="color:#000;">teedropper.com/support</a></p>
+              <p style="color:#555;font-size:14px;">Questions? Hit us at <a href="https://www.teedropper.com/support" style="color:#000;">teedropper.com/support</a></p>
+              ${reviewSection}
               <p style="font-size:12px;color:#aaa;margin-top:32px;">TeeDropper — teedropper.com</p>
             </div>
           `,

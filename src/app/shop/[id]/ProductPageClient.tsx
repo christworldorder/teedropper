@@ -5,6 +5,7 @@ import { notFound, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import ReviewsSection from "@/components/ReviewsSection";
 
 function slugId(s: string) {
   return s.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
@@ -442,6 +443,8 @@ export default function ProductPageClient({ id }: { id: string }) {
           </div>
         </div>
       </div>
+
+      <ReviewsSection productId={id} />
 
       {/* Size Chart Modal */}
       {sizeChart && (

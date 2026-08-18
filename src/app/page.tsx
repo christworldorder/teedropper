@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { Product, ProductCategory } from "@/lib/products";
+import TrustStrip from "@/components/TrustStrip";
 
 const SECTIONS: { key: ProductCategory; label: string; cover?: string }[] = [
   { key: "mens", label: "Men's Shirts", cover: "/grappling-club-mockup.webp" },
@@ -78,6 +79,7 @@ export default async function Home() {
         ))}
       </div>
     </div>
+    <TrustStrip />
     </>
   );
 }

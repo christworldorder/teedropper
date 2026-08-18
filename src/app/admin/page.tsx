@@ -133,7 +133,12 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-xl mx-auto">
-        <h1 className="text-3xl font-black uppercase tracking-tight mb-2">Add New Drop</h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl font-black uppercase tracking-tight">Add New Drop</h1>
+          <a href="/admin/reviews" className="text-sm font-bold bg-black text-white px-4 py-2 rounded-full hover:bg-yellow-400 hover:text-black transition-colors">
+            Reviews Queue
+          </a>
+        </div>
         <p className="text-gray-500 mb-8">Fill in the details and hit publish.</p>
 
         {success && <div className="bg-green-100 border border-green-300 text-green-800 font-bold px-4 py-3 rounded-xl mb-6">Drop published!</div>}

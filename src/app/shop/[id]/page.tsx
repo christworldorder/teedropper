@@ -73,6 +73,17 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         ...(sizes.length > 0 && { size: sizes }),
         ...(product.color && { color: product.color }),
         ...(product.material && { material: product.material }),
+        ...(product.reviewCount != null && product.reviewCount >= 3 && product.avgRating != null
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: product.avgRating.toFixed(1),
+                reviewCount: product.reviewCount,
+                bestRating: 5,
+                worstRating: 1,
+              },
+            }
+          : {}),
         offers: {
           "@type": "Offer",
           price: product.price,

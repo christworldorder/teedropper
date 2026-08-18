@@ -14,6 +14,8 @@ export type Product = {
   material?: string;
   additionalImages?: string[];
   createdAt?: number;
+  avgRating?: number;
+  reviewCount?: number;
 };
 
 export const SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL"] as const;
