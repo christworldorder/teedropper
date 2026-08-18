@@ -5,11 +5,15 @@ import { CartProvider } from "@/context/CartContext";
 import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.teedropper.com"),
   verification: {
     google: "kIYeBc4hCocU9wba-MM0E2DnkYmp9e-V7I3CW0U_BvA",
   },
   title: "TeeDropper - Trending Tees Dropped Daily",
   description: "Viral tees for the moment. New drops every week.",
+  alternates: {
+    canonical: "https://www.teedropper.com",
+  },
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",
@@ -18,16 +22,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: "TeeDropper: Viral Tees. Right Now.",
     description: "The shirts blowing up online. New drops every week. Ships in 5–10 days.",
-    url: "https://teedropper.com",
+    url: "https://www.teedropper.com",
     siteName: "TeeDropper",
-    images: [{ url: "https://teedropper.com/og-default.jpg", width: 1200, height: 630, alt: "TeeDropper" }],
+    images: [{ url: "https://www.teedropper.com/og-default.jpg", width: 1731, height: 909, alt: "TeeDropper" }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "TeeDropper: Viral Tees. Right Now.",
     description: "The shirts blowing up online. New drops every week.",
-    images: ["https://teedropper.com/og-default.jpg"],
+    images: ["https://www.teedropper.com/og-default.jpg"],
   },
 };
 

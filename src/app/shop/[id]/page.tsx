@@ -27,12 +27,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const title = `${product.name} — TeeDropper`;
   const description = product.description || `${product.name} — Viral tee from TeeDropper. Ships in 5–10 days.`;
-  const image = product.image || "https://teedropper.com/og-default.jpg";
-  const url = `https://teedropper.com/shop/${id}`;
+  const image = product.image || "https://www.teedropper.com/og-default.jpg";
+  const url = `https://www.teedropper.com/shop/${id}`;
 
   return {
     title,
     description,
+    alternates: { canonical: url },
     openGraph: {
       title,
       description,
