@@ -42,7 +42,7 @@ next-env.d.ts
 
 .vercel
 .env*
-*.json
 christ-world-order-*.json
+*-adminsdk-*.json
+serviceAccount*.json
 service-account*.json
-adminsdk*.json
