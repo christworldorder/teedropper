@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 import { getAdminDb } from "@/lib/firebase-admin";
@@ -50,7 +51,8 @@ export default async function CategoryPage({
   params: Promise<{ cat: string }>;
 }) {
   const { cat } = await params;
-  const label = LABELS[cat as ProductCategory] ?? cat;
+  if (!(cat in LABELS)) notFound();
+  const label = LABELS[cat as ProductCategory];
   const products = await getProductsByCategory(cat);
 
   const schema = {

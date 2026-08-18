@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { Product } from "@/lib/products";
 import ProductPageClient from "./ProductPageClient";
@@ -54,6 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const product = await getProduct(id);
+  if (!product) notFound();
 
   const sizes: string[] = product?.variants
     ? Object.keys(product.variants)

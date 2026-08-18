@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const email = formData.get("email") as string;
     const orderEmail = formData.get("orderEmail") as string;
+    const orderNumber = (formData.get("orderNumber") as string) || "";
     const issue = formData.get("issue") as string;
     const description = formData.get("description") as string;
     const photo = formData.get("photo") as File | null;
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
         <table style="border-collapse:collapse;width:100%;font-family:sans-serif;font-size:14px;">
           <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;width:180px;">Customer Email</td><td style="padding:8px;border:1px solid #ddd;">${email}</td></tr>
           <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Checkout Email</td><td style="padding:8px;border:1px solid #ddd;">${orderEmail}</td></tr>
+          ${orderNumber ? `<tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Order Number</td><td style="padding:8px;border:1px solid #ddd;">${orderNumber}</td></tr>` : ""}
           <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Issue Type</td><td style="padding:8px;border:1px solid #ddd;">${issue}</td></tr>
           <tr><td style="padding:8px;font-weight:bold;border:1px solid #ddd;">Description</td><td style="padding:8px;border:1px solid #ddd;">${description}</td></tr>
         </table>

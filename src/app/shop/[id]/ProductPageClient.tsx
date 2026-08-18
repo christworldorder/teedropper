@@ -322,7 +322,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                     key={color}
                     onClick={() => { setSelectedColor(color); setSelectedSize(""); setColorError(false); setActiveImage(null); }}
                     className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-colors ${
-                      selectedColor === color ? "bg-black text-white border-black" : "border-gray-300 text-gray-700 hover:border-black"
+                      selectedColor === color ? "bg-black text-white border-black" : "bg-white text-gray-900 border-gray-300 hover:border-black"
                     }`}
                   >
                     {color}
@@ -365,7 +365,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                     key={size}
                     onClick={() => { setSelectedSize(size); setSizeError(false); }}
                     className={`px-4 py-2 rounded-full border-2 font-bold text-sm transition-colors ${
-                      selectedSize === size ? "bg-black text-white border-black" : "border-gray-300 text-gray-700 hover:border-black"
+                      selectedSize === size ? "bg-black text-white border-black" : "bg-white text-gray-900 border-gray-300 hover:border-black"
                     }`}
                   >
                     {size}
