@@ -226,6 +226,7 @@ export async function POST(req: NextRequest) {
         });
 
         // Schedule the review request email for day 15 — after the shirt has arrived
+        // Store the Resend email ID so it can be cancelled if the order is refunded/cancelled
         if (reviewTokens.length > 0) {
           const reviewLinks = reviewTokens
             .map(({ token }) =>
@@ -235,7 +236,7 @@ export async function POST(req: NextRequest) {
 
           const day15 = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
 
-          await resend.emails.send({
+          const reviewEmailResult = await resend.emails.send({
             from: "TeeDropper <support@nevermissed.app>",
             to: email,
             subject: "How's your TeeDropper gear?",
@@ -253,6 +254,11 @@ export async function POST(req: NextRequest) {
               </div>
             `,
           });
+          // Store the Resend email ID on the order document so it can be cancelled via
+          // resend.emails.cancel(id) if the order is refunded or lost before day 15
+          if (reviewEmailResult.data?.id) {
+            await eventRef.update({ reviewEmailId: reviewEmailResult.data.id, reviewEmailScheduledFor: day15 });
+          }
         }
       } catch (emailErr) {
         console.error("Confirmation email failed:", emailErr);
