@@ -10,19 +10,25 @@ initializeApp({ credential: cert(serviceAccount) });
 const db = getFirestore();
 
 const product = {
-  name: "Women's Rash Guard - Barbie Jitsu",
-  description: 'Train cute. Tap out nobody. Barbie Jitsu rash guard.',
-  price: 49.99,
-  image: 'https://files.cdn.printful.com/files/aa4/aa4625b0294009a5e3700e2ce047cd90_preview.png',
-  tag: "Women's",
+  name: "Christ is King Camo",
+  description: "Camo-filled gothic lettering on a premium black CVC tee. Bold faith, built for the mat and the street. Wear what you stand for.",
+  price: 29.99,
+  image: "/unisex-cvc-t-shirt-black-front-6a83948a47d27.webp",
+  additionalImages: [
+    "/unisex-cvc-t-shirt-black-front-6a83948a47383.webp",
+  ],
+  tag: "Faith",
+  category: "mens",
+  color: "Black",
+  material: "CVC blend (52% cotton, 48% polyester)",
   variants: {
-    XS: '5438362610',
-    S: '5438362611',
-    M: '5438362613',
-    L: '5438362614',
-    XL: '5438362615',
-    '2XL': '5438362616',
-    '3XL': '5438362617',
+    "XS": "5444593850",
+    "S":  "5444593851",
+    "M":  "5444593852",
+    "L":  "5444593853",
+    "XL": "5444593854",
+    "2XL":"5444593855",
+    "3XL":"5444593856",
   },
   createdAt: Date.now(),
 };
