@@ -7,4 +7,8 @@ Sentry.init({
   integrations: [Sentry.replayIntegration()],
   replaysOnErrorSampleRate: 1.0,
   replaysSessionSampleRate: 0.0,
+  ignoreErrors: [
+    /window\.webkit\.messageHandlers/,
+    /undefined is not an object \(evaluating 'window\.webkit/,
+  ],
 });
