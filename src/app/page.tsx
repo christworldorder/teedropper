@@ -12,7 +12,7 @@ const SECTIONS: { key: ProductCategory; label: string; cover?: string }[] = [
   { key: "hoodies", label: "Hoodies / Sweatshirts" },
   { key: "kids", label: "Kids" },
   { key: "flags", label: "Flags" },
-  { key: "meme", label: "Meme Tees" },
+  { key: "meme", label: "Meme / Random" },
 ];
 
 async function getProducts(): Promise<Product[]> {

@@ -15,7 +15,7 @@ const LABELS: Record<ProductCategory, string> = {
   hoodies: "Hoodies / Sweatshirts",
   kids: "Kids",
   flags: "Flags",
-  meme: "Meme Tees",
+  meme: "Meme / Random",
 };
 
 async function getProductsByCategory(cat: string): Promise<Product[]> {
