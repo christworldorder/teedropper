@@ -13,6 +13,7 @@ const STATIC_PAGES = [
   { url: "/category/hoodies", priority: "0.9", changefreq: "daily" },
   { url: "/category/kids", priority: "0.9", changefreq: "daily" },
   { url: "/category/flags", priority: "0.9", changefreq: "daily" },
+  { url: "/category/meme", priority: "0.9", changefreq: "daily" },
   { url: "/privacy-policy", priority: "0.3", changefreq: "monthly" },
   { url: "/terms", priority: "0.3", changefreq: "monthly" },
   { url: "/returns", priority: "0.3", changefreq: "monthly" },

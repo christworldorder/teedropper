@@ -12,6 +12,7 @@ const CATEGORY_MAP: Record<string, string> = {
   "rashguard-womens":"Apparel & Accessories > Clothing > Activewear",
   kids:              "Apparel & Accessories > Clothing > Activewear",
   flags:             "Home & Garden > Decor > Flags & Windsocks",
+  meme:              "Apparel & Accessories > Clothing > Shirts & Tops",
 };
 
 const PRODUCT_TYPE_MAP: Record<string, string> = {
@@ -22,6 +23,7 @@ const PRODUCT_TYPE_MAP: Record<string, string> = {
   "rashguard-womens":"Activewear > Rash Guards > Women's",
   kids:              "Activewear > Rash Guards > Kids",
   flags:             "Accessories > Flags",
+  meme:              "Apparel > T-Shirts",
 };
 
 const GENDER_MAP: Record<string, string> = {
@@ -32,6 +34,7 @@ const GENDER_MAP: Record<string, string> = {
   "rashguard-womens":"female",
   kids:              "unisex",
   flags:             "unisex",
+  meme:              "unisex",
 };
 
 // Toddler sizes get their own category + age_group
