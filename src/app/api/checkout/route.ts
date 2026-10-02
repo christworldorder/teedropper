@@ -110,6 +110,7 @@ export async function POST(req: NextRequest) {
       line_items: lineItems,
       shipping_address_collection: { allowed_countries: ALLOWED_COUNTRIES },
       shipping_options: [shippingOption(shippingCents)],
+      automatic_tax: { enabled: true },
       ...(bundleDiscount
         ? { custom_text: { submit: { message: "10% bundle discount applied — add more, save more!" } } }
         : {}),
@@ -163,6 +164,7 @@ export async function POST(req: NextRequest) {
     ],
     shipping_address_collection: { allowed_countries: ALLOWED_COUNTRIES },
     shipping_options: [shippingOption(shippingCents)],
+    automatic_tax: { enabled: true },
     metadata: {
       printful_variant_id: variantId,
       product_id: productId,
